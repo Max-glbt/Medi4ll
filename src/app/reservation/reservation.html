@@ -1,1 +1,138 @@
-<p>reservation works!</p>
+<app-navbar></app-navbar>
+
+<div class="reservation-container">
+  <div class="content-wrapper">
+    <!-- Liste des rendez-vous à gauche -->
+    <div class="appointments-section">
+      <h2>Mes rendez-vous</h2>
+      
+      <div class="appointments-list">
+        <div class="appointment-card">
+          <div class="appointment-header">
+            <h3>Dr. Sophie Martin</h3>
+            <span class="specialty">Cardiologue</span>
+          </div>
+          <div class="appointment-details">
+            <div class="detail-item">
+              <span class="icon">📅</span>
+              <span>Lundi 27 janvier 2026</span>
+            </div>
+            <div class="detail-item">
+              <span class="icon">🕐</span>
+              <span>14:30</span>
+            </div>
+            <div class="detail-item">
+              <span class="icon">📍</span>
+              <span>Cabinet Paris 15ème</span>
+            </div>
+          </div>
+          <div class="appointment-actions">
+            <button class="btn-cancel">Annuler</button>
+            <button class="btn-modify">Modifier</button>
+          </div>
+        </div>
+
+        <div class="appointment-card">
+          <div class="appointment-header">
+            <h3>Dr. Jean Dupont</h3>
+            <span class="specialty">Dentiste</span>
+          </div>
+          <div class="appointment-details">
+            <div class="detail-item">
+              <span class="icon">📅</span>
+              <span>Vendredi 31 janvier 2026</span>
+            </div>
+            <div class="detail-item">
+              <span class="icon">🕐</span>
+              <span>10:00</span>
+            </div>
+            <div class="detail-item">
+              <span class="icon">📍</span>
+              <span>Cabinet Paris 10ème</span>
+            </div>
+          </div>
+          <div class="appointment-actions">
+            <button class="btn-cancel">Annuler</button>
+            <button class="btn-modify">Modifier</button>
+          </div>
+        </div>
+
+        <div class="no-appointments" *ngIf="false">
+          <p>Aucun rendez-vous à venir</p>
+          <button class="btn-primary">Prendre un rendez-vous</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Calendrier à droite -->
+    <div class="calendar-section">
+      <h2>Calendrier</h2>
+      <div class="calendar">
+        <div class="calendar-header">
+          <button class="nav-btn">‹</button>
+          <h3>Janvier 2026</h3>
+          <button class="nav-btn">›</button>
+        </div>
+        
+        <div class="calendar-grid">
+          <div class="day-name">Lun</div>
+          <div class="day-name">Mar</div>
+          <div class="day-name">Mer</div>
+          <div class="day-name">Jeu</div>
+          <div class="day-name">Ven</div>
+          <div class="day-name">Sam</div>
+          <div class="day-name">Dim</div>
+          
+          <!-- Jours vides du début -->
+          <div class="day empty"></div>
+          <div class="day empty"></div>
+          <div class="day empty"></div>
+          
+          <!-- Jours du mois -->
+          <div class="day">1</div>
+          <div class="day">2</div>
+          <div class="day">3</div>
+          <div class="day">4</div>
+          <div class="day">5</div>
+          <div class="day">6</div>
+          <div class="day">7</div>
+          <div class="day">8</div>
+          <div class="day">9</div>
+          <div class="day">10</div>
+          <div class="day">11</div>
+          <div class="day">12</div>
+          <div class="day">13</div>
+          <div class="day">14</div>
+          <div class="day">15</div>
+          <div class="day">16</div>
+          <div class="day">17</div>
+          <div class="day">18</div>
+          <div class="day">19</div>
+          <div class="day">20</div>
+          <div class="day">21</div>
+          <div class="day">22</div>
+          <div class="day today">23</div>
+          <div class="day">24</div>
+          <div class="day">25</div>
+          <div class="day">26</div>
+          <div class="day has-appointment">27</div>
+          <div class="day">28</div>
+          <div class="day">29</div>
+          <div class="day">30</div>
+          <div class="day has-appointment">31</div>
+        </div>
+        
+        <div class="calendar-legend">
+          <div class="legend-item">
+            <span class="legend-dot today-dot"></span>
+            <span>Aujourd'hui</span>
+          </div>
+          <div class="legend-item">
+            <span class="legend-dot appointment-dot"></span>
+            <span>Rendez-vous</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

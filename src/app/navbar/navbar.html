@@ -1,15 +1,18 @@
 <nav class="navbar">
   <div class="navbar-container">
-    <div class="logo">Medi4ll</div>
-
-    <ul class="nav-links">
-      <li><a href="#" class="nav-item">Home</a></li>
-      <li><a href="#" class="nav-item">Rendez-vous</a></li>
-      <li><a href="#" class="nav-item">Planning</a></li>
-      <li><a href="#" class="nav-item">Professionnels</a></li>
-      <li><a href="#" class="nav-item">Mon Compte</a></li>
+    <ul class="nav-links-left">
+      <li><a routerLink="/home" routerLinkActive="nav-item-active" class="nav-item">Home</a></li>
+      <li><a routerLink="/prise-rdv" routerLinkActive="nav-item-active" class="nav-item">Réserver</a></li>
+      <li><a routerLink="/reservation" routerLinkActive="nav-item-active" class="nav-item">Mes rendez-vous</a></li>
     </ul>
 
-    <a href="#" class="contact-btn">Contact</a>
+    <div class="logo">Medi4ll</div>
+
+    <div class="nav-actions">
+      <a href="#" class="contact-btn">Contact</a>
+      <button class="logout-btn" (click)="onLogout()">
+        Déconnexion
+      </button>
+    </div>
   </div>
 </nav>

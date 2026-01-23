@@ -1,0 +1,281 @@
+.reservation-container {
+  min-height: 100vh;
+  background: #f8f9fa;
+  padding: 2rem;
+}
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.5fr 1fr;
+  gap: 2rem;
+}
+
+/* Section des rendez-vous */
+.appointments-section h2 {
+  font-size: 1.8rem;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.appointments-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.appointment-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.3s ease;
+}
+
+.appointment-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+  transform: translateY(-2px);
+}
+
+.appointment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.appointment-header h3 {
+  font-size: 1.2rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 600;
+}
+
+.specialty {
+  background: rgba(45, 158, 140, 0.1);
+  color: #2d9e8c;
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.appointment-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: #4a5568;
+  font-size: 0.95rem;
+}
+
+.detail-item .icon {
+  font-size: 1.1rem;
+}
+
+.appointment-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-modify {
+  padding: 0.5rem 1.2rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: none;
+}
+
+.btn-cancel {
+  background: #fee;
+  color: #c53030;
+}
+
+.btn-cancel:hover {
+  background: #fcc;
+}
+
+.btn-modify {
+  background: rgba(45, 158, 140, 0.1);
+  color: #2d9e8c;
+}
+
+.btn-modify:hover {
+  background: rgba(45, 158, 140, 0.2);
+}
+
+.no-appointments {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 16px;
+}
+
+.no-appointments p {
+  color: #718096;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+.btn-primary {
+  background: #2d9e8c;
+  color: white;
+  padding: 0.8rem 2rem;
+  border: none;
+  border-radius: 50px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-primary:hover {
+  background: #26867a;
+  transform: translateY(-2px);
+}
+
+/* Section calendrier */
+.calendar-section h2 {
+  font-size: 1.8rem;
+  color: #2d3748;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+}
+
+.calendar {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header h3 {
+  font-size: 1.2rem;
+  color: #2d3748;
+  margin: 0;
+  font-weight: 600;
+}
+
+.nav-btn {
+  background: rgba(45, 158, 140, 0.1);
+  border: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  color: #2d9e8c;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.nav-btn:hover {
+  background: rgba(45, 158, 140, 0.2);
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.day-name {
+  text-align: center;
+  font-weight: 600;
+  color: #718096;
+  font-size: 0.85rem;
+  padding: 0.5rem;
+}
+
+.day {
+  aspect-ratio: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  color: #2d3748;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.day:not(.empty):hover {
+  background: rgba(45, 158, 140, 0.1);
+}
+
+.day.empty {
+  cursor: default;
+}
+
+.day.today {
+  background: #2d9e8c;
+  color: white;
+  font-weight: 600;
+}
+
+.day.has-appointment {
+  background: rgba(45, 158, 140, 0.15);
+  color: #2d9e8c;
+  font-weight: 600;
+}
+
+.calendar-legend {
+  display: flex;
+  gap: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #718096;
+}
+
+.legend-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.today-dot {
+  background: #2d9e8c;
+}
+
+.appointment-dot {
+  background: rgba(45, 158, 140, 0.5);
+}
+
+@media screen and (max-width: 1024px) {
+  .content-wrapper {
+    grid-template-columns: 1fr;
+  }
+  
+  .calendar-section {
+    order: -1;
+  }
+}
