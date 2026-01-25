@@ -1,1 +1,395 @@
-<p>profil-page works!</p>
+<app-navbar></app-navbar>
+
+<div class="profil-container">
+  <div class="header">
+    <h1>Mon Profil</h1>
+  </div>
+
+  <!-- Messages -->
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  <!-- Onglets -->
+  <div class="tabs">
+    <button 
+      class="tab" 
+      [class.active]="activeTab() === 'profile'"
+      (click)="activeTab.set('profile')"
+    >
+      Mes informations
+    </button>
+    @if (isProfessionnel()) {
+      <button 
+        class="tab" 
+        [class.active]="activeTab() === 'rdv-pro'"
+        (click)="activeTab.set('rdv-pro')"
+      >
+        Rendez-vous professionnels
+      </button>
+    }
+  </div>
+
+  <!-- Contenu des onglets -->
+  <div class="tab-content">
+    <!-- Onglet Profil -->
+    @if (activeTab() === 'profile' && user()) {
+      <div class="profile-section">
+        <div class="section-header">
+          <h2>Informations personnelles</h2>
+          @if (!isEditingProfile()) {
+            <button class="btn-edit" (click)="isEditingProfile.set(true)">
+              Modifier
+            </button>
+          } @else {
+            <div class="btn-group">
+              <button class="btn-cancel" (click)="isEditingProfile.set(false)">
+                Annuler
+              </button>
+              <button class="btn-save" (click)="updateProfile()" [disabled]="isLoading()">
+                Enregistrer
+              </button>
+            </div>
+          }
+        </div>
+
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Prénom</label>
+            @if (isEditingProfile()) {
+              <input type="text" [(ngModel)]="user()!.first_name" />
+            } @else {
+              <p class="info-text">{{ user()!.first_name || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Nom</label>
+            @if (isEditingProfile()) {
+              <input type="text" [(ngModel)]="user()!.last_name" />
+            } @else {
+              <p class="info-text">{{ user()!.last_name || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Email</label>
+            <p class="info-text">{{ user()!.email }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Nom d'utilisateur</label>
+            <p class="info-text">{{ user()!.username }}</p>
+          </div>
+
+          <div class="form-group">
+            <label>Date de naissance</label>
+            @if (isEditingProfile()) {
+              <input type="date" [(ngModel)]="user()!.date_naissance" />
+            } @else {
+              <p class="info-text">{{ user()!.date_naissance || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Sexe</label>
+            @if (isEditingProfile()) {
+              <select [(ngModel)]="user()!.sexe">
+                <option value="">Non spécifié</option>
+                <option value="M">Masculin</option>
+                <option value="F">Féminin</option>
+                <option value="A">Autre</option>
+              </select>
+            } @else {
+              <p class="info-text">
+                @if (user()!.sexe === 'M') { Masculin }
+                @else if (user()!.sexe === 'F') { Féminin }
+                @else if (user()!.sexe === 'A') { Autre }
+                @else { - }
+              </p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Téléphone</label>
+            @if (isEditingProfile()) {
+              <input type="tel" [(ngModel)]="user()!.telephone" />
+            } @else {
+              <p class="info-text">{{ user()!.telephone || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Téléphone d'urgence</label>
+            @if (isEditingProfile()) {
+              <input type="tel" [(ngModel)]="user()!.telephone_urgence" />
+            } @else {
+              <p class="info-text">{{ user()!.telephone_urgence || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group full-width">
+            <label>Adresse complète</label>
+            @if (isEditingProfile()) {
+              <textarea [(ngModel)]="user()!.adresse_complete" rows="3"></textarea>
+            } @else {
+              <p class="info-text">{{ user()!.adresse_complete || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Ville</label>
+            @if (isEditingProfile()) {
+              <input type="text" [(ngModel)]="user()!.ville" />
+            } @else {
+              <p class="info-text">{{ user()!.ville || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Code postal</label>
+            @if (isEditingProfile()) {
+              <input type="text" [(ngModel)]="user()!.code_postal" />
+            } @else {
+              <p class="info-text">{{ user()!.code_postal || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Pays</label>
+            @if (isEditingProfile()) {
+              <input type="text" [(ngModel)]="user()!.pays" />
+            } @else {
+              <p class="info-text">{{ user()!.pays || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Numéro de sécurité sociale</label>
+            @if (isEditingProfile()) {
+              <input type="text" [(ngModel)]="user()!.numero_securite_sociale" />
+            } @else {
+              <p class="info-text">{{ user()!.numero_securite_sociale || '-' }}</p>
+            }
+          </div>
+
+          <div class="form-group">
+            <label>Préférence de notification</label>
+            @if (isEditingProfile()) {
+              <select [(ngModel)]="user()!.preference_notification">
+                <option value="email">Email</option>
+                <option value="sms">SMS</option>
+                <option value="les_deux">Email et SMS</option>
+                <option value="aucune">Aucune</option>
+              </select>
+            } @else {
+              <p class="info-text">
+                @if (user()!.preference_notification === 'email') { Email }
+                @else if (user()!.preference_notification === 'sms') { SMS }
+                @else if (user()!.preference_notification === 'les_deux') { Email et SMS }
+                @else if (user()!.preference_notification === 'aucune') { Aucune }
+                @else { - }
+              </p>
+            }
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Onglet Rendez-vous professionnels -->
+    @if (activeTab() === 'rdv-pro' && isProfessionnel()) {
+      <div class="rdv-section">
+        <h2>Mes rendez-vous en tant que professionnel</h2>
+        
+        @if (rendezVousProfessionnel().length === 0) {
+          <div class="empty-state">
+            <p>Aucun rendez-vous programmé</p>
+          </div>
+        } @else {
+          <div class="rdv-list">
+            @for (rdv of rendezVousProfessionnel(); track rdv.id) {
+              <div class="rdv-card">
+                <div class="rdv-header">
+                  <div>
+                    <h3>Patient: {{ rdv.professionnel.prenom }} {{ rdv.professionnel.nom }}</h3>
+                  </div>
+                  <span class="badge" [ngClass]="getStatutBadgeClass(rdv.statut)">
+                    {{ getStatutLabel(rdv.statut) }}
+                  </span>
+                </div>
+                <div class="rdv-details">
+                  <p><strong>Date:</strong> {{ formatDate(rdv.date) }}</p>
+                  <p><strong>Heure:</strong> {{ rdv.heure_debut }} - {{ rdv.heure_fin }}</p>
+                  <p><strong>Mode:</strong> {{ rdv.mode === 'PRESENTIEL' ? 'En présentiel' : 'Téléconsultation' }}</p>
+                  @if (rdv.cabinet) {
+                    <p><strong>Lieu:</strong> {{ rdv.cabinet.nom }}</p>
+                  }
+                  @if (rdv.notes_patient) {
+                    <p><strong>Notes patient:</strong> {{ rdv.notes_patient }}</p>
+                  }
+                </div>
+                <div class="rdv-actions">
+                  @if (rdv.statut === 'EN_ATTENTE') {
+                    <button class="btn-action btn-confirm" (click)="updateRendezVousStatut(rdv.id, 'CONFIRME')">
+                      Confirmer
+                    </button>
+                    <button class="btn-action btn-cancel-rdv" (click)="updateRendezVousStatut(rdv.id, 'ANNULE')">
+                      Annuler
+                    </button>
+                  }
+                  @if (rdv.statut === 'CONFIRME') {
+                    <button class="btn-action btn-complete" (click)="updateRendezVousStatut(rdv.id, 'TERMINE')">
+                      Marquer terminé
+                    </button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+      <div class="pro-settings">
+        <h2>Paramètres professionnels</h2>
+        @if (professionnelProfile()) {
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Tarif consultation (€)</label>
+              <input type="number" [(ngModel)]="professionnelProfile()!.tarif_consultation" min="0" step="0.5" />
+            </div>
+            <div class="form-group">
+              <label>Accepte la téléconsultation</label>
+              <input type="checkbox" [(ngModel)]="professionnelProfile()!.accepte_teleconsultation" />
+            </div>
+          </div>
+          <button class="btn-save" (click)="saveProfessionnelSettings()" [disabled]="isLoading()">Enregistrer</button>
+        } @else {
+          <p>Chargement du profil professionnel...</p>
+        }
+      </div>
+
+      <div class="pro-dispos">
+        <h2>Mes disponibilités</h2>
+        <div class="dispo-list">
+          @if (disponibilites().length === 0) {
+            <p>Aucune disponibilité configurée.</p>
+          } @else {
+            @for (d of disponibilites(); track d.id) {
+              <div class="dispo-item">
+                <div>
+                  <strong>{{ joursLabels[d.jour_semaine] }}</strong> | {{ d.heure_debut }} - {{ d.heure_fin }} | {{ d.duree_creneau }} min | Cabinet: {{ d.cabinet.nom }}
+                </div>
+                <button class="btn-cancel" (click)="deleteDisponibilite(d.id)">Supprimer</button>
+              </div>
+            }
+          }
+        </div>
+
+        <h3>Ajouter une disponibilité</h3>
+        @if (professionnelProfile()?.cabinets?.length) {
+          <div class="form-grid">
+            <div class="form-group">
+              <label>Cabinet</label>
+              <select [(ngModel)]="newDispo().cabinet_id">
+                <option [ngValue]="null">Choisir...</option>
+                @for (cab of professionnelProfile()!.cabinets!; track cab.id) {
+                  <option [ngValue]="cab.id">{{ cab.nom }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Jour</label>
+              <select [(ngModel)]="newDispo().jour_semaine">
+                @for (day of [0,1,2,3,4,5,6]; track day) {
+                  <option [ngValue]="day">{{ joursLabels[day] }}</option>
+                }
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Heure début</label>
+              <input type="time" [(ngModel)]="newDispo().heure_debut" />
+            </div>
+            <div class="form-group">
+              <label>Heure fin</label>
+              <input type="time" [(ngModel)]="newDispo().heure_fin" />
+            </div>
+            <div class="form-group">
+              <label>Durée créneau (min)</label>
+              <input type="number" [(ngModel)]="newDispo().duree_creneau" min="5" step="5" />
+            </div>
+          </div>
+          <button class="btn-save" (click)="addDisponibilite()" [disabled]="isLoading()">Ajouter</button>
+        } @else {
+          <p>Ajoutez d'abord un cabinet à votre profil.</p>
+        }
+      </div>
+
+      <div class="pro-cabinets">
+        <h2>Mes cabinets</h2>
+        <div class="cabinet-list">
+          @if (cabinets().length === 0) {
+            <p>Aucun cabinet. Ajoutez-en un ci-dessous.</p>
+          } @else {
+            @for (cab of cabinets(); track cab.id) {
+              <div class="cabinet-item">
+                <div class="form-grid">
+                  <div class="form-group">
+                    <label>Nom</label>
+                    <input type="text" [(ngModel)]="cab.nom" />
+                  </div>
+                  <div class="form-group full-width">
+                    <label>Adresse</label>
+                    <input type="text" [(ngModel)]="cab.adresse" />
+                  </div>
+                  <div class="form-group">
+                    <label>Ville</label>
+                    <input type="text" [(ngModel)]="cab.ville" />
+                  </div>
+                  <div class="form-group">
+                    <label>Code postal</label>
+                    <input type="text" [(ngModel)]="cab.code_postal" />
+                  </div>
+                  <div class="form-group">
+                    <label>Téléphone</label>
+                    <input type="text" [(ngModel)]="cab.telephone" />
+                  </div>
+                </div>
+                <div class="btn-group">
+                  <button class="btn-save" (click)="updateCabinet(cab)" [disabled]="isLoading()">Enregistrer</button>
+                  <button class="btn-cancel" (click)="deleteCabinet(cab.id)" [disabled]="isLoading()">Supprimer</button>
+                </div>
+              </div>
+            }
+          }
+        </div>
+
+        <h3>Ajouter un cabinet</h3>
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Nom</label>
+            <input type="text" [(ngModel)]="newCabinet().nom" />
+          </div>
+          <div class="form-group full-width">
+            <label>Adresse</label>
+            <input type="text" [(ngModel)]="newCabinet().adresse" />
+          </div>
+          <div class="form-group">
+            <label>Ville</label>
+            <input type="text" [(ngModel)]="newCabinet().ville" />
+          </div>
+          <div class="form-group">
+            <label>Code postal</label>
+            <input type="text" [(ngModel)]="newCabinet().code_postal" />
+          </div>
+          <div class="form-group">
+            <label>Téléphone</label>
+            <input type="text" [(ngModel)]="newCabinet().telephone" />
+          </div>
+        </div>
+        <button class="btn-save" (click)="addCabinet()" [disabled]="isLoading()">Ajouter</button>
+      </div>
+    }
+  </div>
+</div>

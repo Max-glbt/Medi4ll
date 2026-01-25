@@ -6,6 +6,18 @@ from django.utils import timezone
 
 class User(AbstractUser):
     """Patient"""
+    TYPE_COMPTE_CHOICES = [
+        ('client', 'Client'),
+        ('professionnel', 'Professionnel'),
+    ]
+    type_compte = models.CharField(
+        max_length=15,
+        choices=TYPE_COMPTE_CHOICES,
+        default='client',
+        verbose_name="Type de compte"
+    )
+    is_admin = models.BooleanField(default=False, verbose_name="Est administrateur")
+    
     date_naissance = models.DateField(null=True, blank=True, verbose_name="Date de naissance")
     
     SEXE_CHOICES = [
@@ -98,12 +110,14 @@ class Professionnel(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100, verbose_name="Prénom")
     email = models.EmailField(unique=True)
-    password_hash = models.CharField(max_length=255, verbose_name="Mot de passe (hashé)")
-    telephone = models.CharField(max_length=20, verbose_name="Téléphone")
+    password_hash = models.CharField(max_length=255, blank=True, default='', verbose_name="Mot de passe (hashé)")
+    telephone = models.CharField(max_length=20, blank=True, default='', verbose_name="Téléphone")
     
     numero_rpps = models.CharField(
         max_length=11, 
-        unique=True, 
+        unique=True,
+        null=True,
+        blank=True,
         verbose_name="Numéro RPPS",
         help_text="Répertoire Partagé des Professionnels de Santé"
     )

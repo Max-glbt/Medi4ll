@@ -238,3 +238,58 @@ button[disabled]:hover {
 .btn:active {
   transform: translateY(0);
 }
+
+/* Account Type Selection */
+.account-type-subtitle {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.account-type-buttons {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.account-type-btn {
+  flex: 1;
+  padding: 2rem 1.5rem;
+  background: white;
+  border: 3px solid #e5e7eb;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+}
+
+.account-type-btn:hover {
+  border-color: #2d9e8c;
+  background: rgba(45, 158, 140, 0.05);
+  box-shadow: 0 10px 25px rgba(45, 158, 140, 0.2);
+}
+
+.account-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
+.account-type-btn h3 {
+  font-size: 1.3rem;
+  font-weight: 700;
+  color: #2d9e8c;
+  margin: 0.5rem 0;
+}
+
+.account-type-btn p {
+  font-size: 0.9rem;
+  color: #6b7280;
+  margin: 0;
+}
+
+@media (max-width: 768px) {
+  .account-type-buttons {
+    flex-direction: column;
+  }
+}

@@ -1,1 +1,203 @@
-<p>prise-rdv-page works!</p>
+<app-navbar></app-navbar>
+
+<div class="prise-rdv-container">
+  <div class="header">
+    <h1>Prendre rendez-vous</h1>
+    <p>Trouvez un professionnel de santé près de chez vous</p>
+  </div>
+
+  <!-- Barre de recherche -->
+  <div class="search-bar">
+    <div class="search-inputs">
+      <div class="input-group">
+        <label for="motscles">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          Recherche
+        </label>
+        <input 
+          type="text" 
+          id="motscles"
+          [value]="motsCles()"
+          (input)="onMotsClesChange($event)"
+          placeholder="Nom, spécialité, ville..."
+        />
+      </div>
+
+      <div class="input-group">
+        <label for="ville">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+            <circle cx="12" cy="10" r="3"></circle>
+          </svg>
+          Lieu
+        </label>
+        <input 
+          type="text" 
+          id="ville"
+          [value]="villeRecherche()"
+          (input)="onVilleChange($event)"
+          placeholder="Ville, code postal..."
+        />
+      </div>
+
+      <div class="input-group">
+        <label for="specialite">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"></path>
+          </svg>
+          Spécialité
+        </label>
+        <select 
+          id="specialite"
+          [value]="specialiteSelectionnee() || ''"
+          (change)="onSpecialiteChange($event)"
+        >
+          <option value="">Toutes les spécialités</option>
+          @for (spec of specialites(); track spec.id) {
+            <option [value]="spec.id">{{ spec.nom }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="input-group">
+        <label for="prixmax">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="1" x2="12" y2="23"></line>
+            <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+          Prix max (€)
+        </label>
+        <input 
+          type="number" 
+          id="prixmax"
+          placeholder="Prix maximum"
+          [value]="prixMax() || ''"
+          (input)="onPrixMaxChange($event)"
+          min="0"
+          step="5"
+        />
+      </div>
+
+      <button class="btn-reset" (click)="reinitialiserFiltres()">
+        Réinitialiser
+      </button>
+    </div>
+  </div>
+
+  <!-- Résultats -->
+  @if (isLoading()) {
+    <div class="loading">
+      <div class="spinner"></div>
+      <p>Chargement des professionnels...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="error-message">
+      {{ errorMessage() }}
+    </div>
+  } @else {
+    <div class="results-header">
+      <h2>{{ professionnelsFiltres().length }} professionnel(s) disponible(s)</h2>
+      @if (getTotalPages() > 1) {
+        <p class="pagination-info">Page {{ pageActuelle() }} sur {{ getTotalPages() }}</p>
+      }
+    </div>
+
+    @if (professionnelsFiltres().length === 0) {
+      <div class="no-results">
+        <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"></circle>
+          <path d="m21 21-4.35-4.35"></path>
+        </svg>
+        <p>Aucun professionnel trouvé</p>
+        <button class="btn-primary" (click)="reinitialiserFiltres()">Voir tous les professionnels</button>
+      </div>
+    } @else {
+      <div class="professionnels-grid">
+        @for (prof of getProfessionnelsPagines(); track prof.id) {
+          <div class="professionnel-card">
+            <!-- Avatar + Nom en haut -->
+            <div class="card-avatar">
+              @if (prof.photo_url) {
+                <img [src]="prof.photo_url" [alt]="'Dr. ' + prof.prenom + ' ' + prof.nom" class="avatar" />
+              } @else {
+                <div class="avatar-placeholder">
+                  {{ prof.prenom.charAt(0) }}{{ prof.nom.charAt(0) }}
+                </div>
+              }
+            </div>
+
+            <!-- Spécialité et nom -->
+            <div class="card-title-section">
+              <p class="cabinet-name">{{ getPremierCabinet(prof)?.nom || 'Cabinet médical' }}</p>
+              <h3 class="doctor-name">Dr. {{ prof.prenom }} {{ prof.nom }}</h3>
+            </div>
+
+            <!-- Badges -->
+            <div class="badges-row">
+              <span class="badge badge-specialite">{{ prof.specialite.nom }}</span>
+              @if (prof.accepte_teleconsultation) {
+                <span class="badge badge-tele">Téléconsultation</span>
+              }
+            </div>
+
+            <!-- Footer: Prix, Ville et Bouton -->
+            <div class="card-footer-compact">
+              <div class="price-location">
+                <p class="price">{{ prof.tarif_consultation }}€</p>
+                <p class="location">{{ getPremierCabinet(prof)?.ville || 'Non renseigné' }}</p>
+              </div>
+              <button class="btn-apply" (click)="ouvrirDetailsProfessionnel(prof)">
+                Prendre un rendez-vous
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Pagination -->
+      @if (getTotalPages() > 1) {
+        <div class="pagination">
+          <button 
+            class="pagination-btn" 
+            (click)="pagesPrecedente()"
+            [disabled]="pageActuelle() === 1"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M15 18l-6-6 6-6"/>
+            </svg>
+            Précédent
+          </button>
+
+          <div class="pagination-pages">
+            @for (page of getPagesAffichees(); track page; let i = $index) {
+              @if (i > 0 && page - getPagesAffichees()[i - 1] > 1) {
+                <span class="pagination-dots">...</span>
+              }
+              <button 
+                class="pagination-page"
+                [class.active]="page === pageActuelle()"
+                (click)="allerALaPage(page)"
+              >
+                {{ page }}
+              </button>
+            }
+          </div>
+
+          <button 
+            class="pagination-btn" 
+            (click)="pageSuivante()"
+            [disabled]="pageActuelle() === getTotalPages()"
+          >
+            Suivant
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M9 18l6-6-6-6"/>
+            </svg>
+          </button>
+        </div>
+      }
+    }
+  }
+</div>

@@ -1,0 +1,150 @@
+<app-navbar></app-navbar>
+
+<div class="detail-container">
+  @if (professionnel()) {
+    <div class="header-section">
+      <button class="btn-retour" (click)="retour()">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M19 12H5M12 19l-7-7 7-7"/>
+        </svg>
+        Retour
+      </button>
+      <h1>Prendre rendez-vous</h1>
+    </div>
+
+    <div class="content-grid">
+      <!-- Informations du professionnel -->
+      <div class="professionnel-card">
+        <div class="prof-header">
+          @if (professionnel()!.photo_url) {
+            <img [src]="professionnel()!.photo_url" [alt]="'Dr. ' + professionnel()!.prenom + ' ' + professionnel()!.nom" class="prof-photo" />
+          } @else {
+            <div class="prof-photo-placeholder">
+              {{ professionnel()!.prenom.charAt(0) }}{{ professionnel()!.nom.charAt(0) }}
+            </div>
+          }
+          <div class="prof-info">
+            <h2>Dr. {{ professionnel()!.prenom }} {{ professionnel()!.nom }}</h2>
+            <p class="specialite">{{ professionnel()!.specialite.nom }}</p>
+            <p class="tarif">{{ professionnel()!.tarif_consultation }} € / consultation</p>
+          </div>
+        </div>
+
+        @if (professionnel()!.bio) {
+          <div class="bio-section">
+            <h3>À propos</h3>
+            <p>{{ professionnel()!.bio }}</p>
+          </div>
+        }
+
+        @if (professionnel()!.cabinets && professionnel()!.cabinets!.length > 0) {
+          <div class="cabinet-section">
+            <h3>Cabinet</h3>
+            <div class="form-group">
+              <label for="cabinet">Lieu du rendez-vous</label>
+              <select id="cabinet" [value]="cabinetSelectionne()" (change)="onCabinetChange($event)">
+                @for (cabinet of professionnel()!.cabinets; track cabinet.id) {
+                  <option [value]="cabinet.id">{{ cabinet.nom }} — {{ cabinet.ville }}</option>
+                }
+              </select>
+            </div>
+            @if (cabinetDetails()) {
+              <div class="cabinet-info">
+                <strong>{{ cabinetDetails()!.nom }}</strong>
+                <p>{{ cabinetDetails()!.adresse }}</p>
+                <p>{{ cabinetDetails()!.code_postal }} {{ cabinetDetails()!.ville }}</p>
+                <p class="tel">📞 {{ cabinetDetails()!.telephone }}</p>
+              </div>
+            }
+            
+            <!-- Carte interactive -->
+            <div class="map-section">
+              <h3>Localisation</h3>
+              <div id="map" style="height: 300px; width: 100%; border-radius: 8px; margin-top: 10px;"></div>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Formulaire de prise de rendez-vous -->
+      <div class="rdv-form-card">
+        <h2>Sélectionnez un créneau</h2>
+
+        @if (errorMessage()) {
+          <div class="alert alert-error">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        @if (successMessage()) {
+          <div class="alert alert-success">
+            {{ successMessage() }}
+          </div>
+        }
+
+        <div class="form-group">
+          <label for="date">Date</label>
+          <input 
+            type="date" 
+            id="date"
+            [value]="dateSelectionnee()"
+            (change)="onDateChange($event)"
+            [min]="dateSelectionnee()"
+          />
+        </div>
+
+        <div class="form-group">
+          <label for="heure">Heure</label>
+          <select 
+            id="heure"
+            [value]="heureSelectionnee()"
+            (change)="onHeureChange($event)"
+          >
+            <option value="">Sélectionnez une heure</option>
+            @for (heure of horairesDispo(); track heure) {
+              <option [value]="heure">{{ heure }}</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="mode">Mode de consultation</label>
+          <select 
+            id="mode"
+            [value]="modeConsultation()"
+            (change)="onModeChange($event)"
+          >
+            <option value="PRESENTIEL">En présentiel</option>
+            @if (professionnel()!.accepte_teleconsultation) {
+              <option value="TELECONSULTATION">Téléconsultation</option>
+            }
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notes (optionnel)</label>
+          <textarea 
+            id="notes"
+            [value]="notes()"
+            (input)="onNotesChange($event)"
+            rows="4"
+            placeholder="Décrivez brièvement le motif de votre consultation..."
+          ></textarea>
+        </div>
+
+        <button 
+          class="btn-confirmer" 
+          (click)="confirmerRendezVous()"
+          [disabled]="isLoading() || !dateSelectionnee() || !heureSelectionnee()"
+        >
+          @if (isLoading()) {
+            <span class="spinner-small"></span>
+            Confirmation en cours...
+          } @else {
+            Confirmer le rendez-vous
+          }
+        </button>
+      </div>
+    </div>
+  }
+</div>

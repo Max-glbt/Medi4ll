@@ -1,0 +1,68 @@
+services:
+  # PostgreSQL Database Container
+  database:
+    image: postgres:15-alpine
+    container_name: medi4ll-db
+    restart: always
+    environment:
+      POSTGRES_DB: medi4ll
+      POSTGRES_USER: medi4ll_user
+      POSTGRES_PASSWORD: medi4ll_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - medi4ll-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U medi4ll_user -d medi4ll"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Django Backend API Container
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: medi4ll-backend
+    restart: always
+    environment:
+      - DEBUG=1
+      - DATABASE_NAME=medi4ll
+      - DATABASE_USER=medi4ll_user
+      - DATABASE_PASSWORD=medi4ll_password
+      - DATABASE_HOST=database
+      - DATABASE_PORT=5432
+      - ALLOWED_HOSTS=localhost,127.0.0.1,backend
+      - CORS_ALLOWED_ORIGINS=http://localhost:4200,http://localhost:80
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - medi4ll-network
+
+  # Angular Frontend Container
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: medi4ll-frontend
+    restart: always
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - medi4ll-network
+
+networks:
+  medi4ll-network:
+    driver: bridge
+
+volumes:
+  postgres_data:

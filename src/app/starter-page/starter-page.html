@@ -58,9 +58,32 @@
       </div>
     }
 
+    @if (showMode === 'register-type') {
+      <div class="form-container">
+        <h2 class="form-title">Créer votre compte</h2>
+        <p class="account-type-subtitle">Sélectionnez votre type de compte</p>
+        
+        <div class="account-type-buttons">
+          <button class="account-type-btn" (click)="selectAccountType('professionnel')">
+            <div class="account-icon">🏥</div>
+            <h3>Professionnel</h3>
+            <p>Médecin, dentiste, spécialiste</p>
+          </button>
+          
+          <button class="account-type-btn" (click)="selectAccountType('client')">
+            <div class="account-icon">👤</div>
+            <h3>Patient</h3>
+            <p>Particulier cherchant un rendez-vous</p>
+          </button>
+        </div>
+
+        <button type="button" class="btn btn-link" (click)="showButtons()">Retour</button>
+      </div>
+    }
+
     @if (showMode === 'register') {
       <div class="form-container">
-        <h2 class="form-title">Inscription</h2>
+        <h2 class="form-title">Inscription {{ accountType === 'professionnel' ? 'Professionnel' : 'Patient' }}</h2>
         <form [formGroup]="registerForm" (ngSubmit)="onRegister()">
           <div class="form-row">
             <div class="form-group">
@@ -96,6 +119,25 @@
               [class.error]="registerForm.get('email')?.invalid && registerForm.get('email')?.touched"
             >
           </div>
+
+          @if (accountType === 'professionnel') {
+            <div class="form-group">
+              <label for="register-specialite">Spécialité *</label>
+              <select 
+                id="register-specialite" 
+                formControlName="specialite"
+                [class.error]="registerForm.get('specialite')?.invalid && registerForm.get('specialite')?.touched"
+              >
+                <option value="">Sélectionnez votre spécialité</option>
+                @for (spec of specialites(); track spec.id) {
+                  <option [value]="spec.id">{{ spec.nom }}</option>
+                }
+              </select>
+              @if (registerForm.get('specialite')?.invalid && registerForm.get('specialite')?.touched) {
+                <span class="error-message">Spécialité requise</span>
+              }
+            </div>
+          }
 
           <div class="form-group">
             <label for="register-password">Mot de passe</label>

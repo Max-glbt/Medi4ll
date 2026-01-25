@@ -2,17 +2,95 @@
   <div class="navbar-container">
     <ul class="nav-links-left">
       <li><a routerLink="/home" routerLinkActive="nav-item-active" class="nav-item">Home</a></li>
-      <li><a routerLink="/prise-rdv" routerLinkActive="nav-item-active" class="nav-item">Réserver</a></li>
-      <li><a routerLink="/reservation" routerLinkActive="nav-item-active" class="nav-item">Mes rendez-vous</a></li>
+      @if (!isAdminComputed()) {
+        <li><a routerLink="/prise-rdv" routerLinkActive="nav-item-active" class="nav-item">Réserver</a></li>
+        <li><a routerLink="/reservation" routerLinkActive="nav-item-active" class="nav-item">Mes rendez-vous</a></li>
+        <li><a routerLink="/profil" routerLinkActive="nav-item-active" class="nav-item">Profil</a></li>
+      }
+      @if (isAdminComputed()) {
+        <li><a routerLink="/admin" routerLinkActive="nav-item-active" class="nav-item">Admin</a></li>
+      }
     </ul>
 
     <div class="logo">Medi4ll</div>
 
     <div class="nav-actions">
-      <a href="#" class="contact-btn">Contact</a>
+      @if (!isAdminComputed()) {
+        <a href="#" class="contact-btn" (click)="openContactModal($event)">Contact</a>
+      }
       <button class="logout-btn" (click)="onLogout()">
         Déconnexion
       </button>
     </div>
   </div>
 </nav>
+
+<!-- Modal de contact -->
+@if (showContactModal()) {
+  <div class="modal-overlay" (click)="closeContactModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Contacter le support</h2>
+        <button class="close-btn" (click)="closeContactModal()">&times;</button>
+      </div>
+
+      @if (successMessage()) {
+        <div class="alert alert-success">{{ successMessage() }}</div>
+      }
+      @if (errorMessage()) {
+        <div class="alert alert-error">{{ errorMessage() }}</div>
+      }
+
+      <form class="contact-form" (submit)="$event.preventDefault(); sendContactMessage()">
+        <div class="form-group">
+          <label>Votre email</label>
+          <input 
+            type="email" 
+            [value]="contactForm().email"
+            readonly
+            class="input-readonly"
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Sujet</label>
+          <input 
+            type="text" 
+            [(ngModel)]="contactForm().subject"
+            placeholder="Objet de votre message"
+            [disabled]="isSending()"
+            required
+          />
+        </div>
+
+        <div class="form-group">
+          <label>Message</label>
+          <textarea 
+            [(ngModel)]="contactForm().message"
+            rows="6"
+            placeholder="Décrivez votre demande..."
+            [disabled]="isSending()"
+            required
+          ></textarea>
+        </div>
+
+        <div class="form-info">
+          <p>Votre message sera envoyé à : <strong>support@medi4all.fr</strong></p>
+        </div>
+
+        <div class="modal-actions">
+          <button type="button" class="btn-cancel" (click)="closeContactModal()" [disabled]="isSending()">
+            Annuler
+          </button>
+          <button type="submit" class="btn-send" [disabled]="isSending()">
+            @if (isSending()) {
+              Envoi en cours...
+            } @else {
+              Envoyer
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

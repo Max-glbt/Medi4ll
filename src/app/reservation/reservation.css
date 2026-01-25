@@ -129,6 +129,43 @@
   font-size: 1.1rem;
 }
 
+.loading {
+  text-align: center;
+  padding: 3rem 2rem;
+  background: white;
+  border-radius: 16px;
+}
+
+.loading p {
+  color: #718096;
+  font-size: 1.1rem;
+}
+
+.error-message {
+  text-align: center;
+  padding: 2rem;
+  background: #fee;
+  border-radius: 16px;
+  color: #c53030;
+  margin-bottom: 1rem;
+}
+
+.no-appointments-message {
+  text-align: center;
+  padding: 2rem;
+  background: #d4edda;
+  border: 1px solid #c3e6cb;
+  border-radius: 16px;
+  color: #155724;
+  margin-bottom: 1rem;
+  font-weight: 500;
+}
+
+.no-appointments-message p {
+  font-size: 1.1rem;
+  margin: 0;
+}
+
 .btn-primary {
   background: #2d9e8c;
   color: white;
@@ -270,12 +307,196 @@
   background: rgba(45, 158, 140, 0.5);
 }
 
-@media screen and (max-width: 1024px) {
+/* Responsive Design */
+@media screen and (max-width: 1200px) {
   .content-wrapper {
     grid-template-columns: 1fr;
+    gap: 1.5rem;
   }
   
   .calendar-section {
     order: -1;
   }
+}
+
+@media screen and (max-width: 768px) {
+  .reservation-container {
+    padding: 1rem;
+  }
+
+  .appointments-section h2,
+  .calendar-section h2 {
+    font-size: 1.5rem;
+  }
+
+  .appointment-card {
+    padding: 1rem;
+  }
+
+  .appointment-header h3 {
+    font-size: 1rem;
+  }
+
+  .specialty {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.6rem;
+  }
+
+  .detail-item {
+    font-size: 0.85rem;
+  }
+
+  /* Calendrier responsive */
+  .calendar {
+    padding: 1rem;
+  }
+
+  .calendar-header h3 {
+    font-size: 1rem;
+  }
+
+  .nav-btn {
+    width: 32px;
+    height: 32px;
+    font-size: 1.2rem;
+  }
+
+  .calendar-grid {
+    gap: 0.3rem;
+  }
+
+  .day-name {
+    font-size: 0.7rem;
+    padding: 0.3rem;
+  }
+
+  .day {
+    font-size: 0.8rem;
+    min-height: 35px;
+  }
+
+  .calendar-legend {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .legend-item {
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (max-width: 480px) {
+  .reservation-container {
+    padding: 0.5rem;
+  }
+
+  .appointments-section h2,
+  .calendar-section h2 {
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+
+  .appointment-card {
+    padding: 0.8rem;
+    border-radius: 12px;
+  }
+
+  .appointment-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .appointment-actions {
+    flex-direction: column;
+    width: 100%;
+  }
+
+  .btn-cancel,
+  .btn-modify {
+    width: 100%;
+    padding: 0.6rem;
+  }
+
+  /* Calendrier très petit écran */
+  .calendar {
+    padding: 0.8rem;
+  }
+
+  .calendar-header {
+    margin-bottom: 1rem;
+  }
+
+  .calendar-header h3 {
+    font-size: 0.9rem;
+  }
+
+  .nav-btn {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+
+  .calendar-grid {
+    gap: 0.2rem;
+  }
+
+  .day-name {
+    font-size: 0.65rem;
+    padding: 0.2rem;
+  }
+
+  .day {
+    font-size: 0.75rem;
+    min-height: 30px;
+  }
+
+  .no-appointments-message,
+  .error-message,
+  .loading {
+    padding: 1.5rem 1rem;
+    font-size: 0.95rem;
+  }
+
+  .btn-primary {
+    padding: 0.6rem 1.5rem;
+    font-size: 0.9rem;
+  }
+}
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding: 1rem;
+}
+
+.pagination-btn {
+  padding: 0.5rem 1rem;
+  background: #2d9e8c;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.pagination-btn:hover:not(:disabled) {
+  background: #26877a;
+  transform: translateY(-1px);
+}
+
+.pagination-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.pagination-info {
+  font-weight: 500;
+  color: #2d3748;
 }

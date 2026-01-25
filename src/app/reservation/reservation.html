@@ -6,62 +6,86 @@
     <div class="appointments-section">
       <h2>Mes rendez-vous</h2>
       
+      <!-- Loading state -->
+      @if (isLoading()) {
+        <div class="loading">
+          <p>Chargement des rendez-vous...</p>
+        </div>
+      }
+      
+      <!-- Error state -->
+      @if (errorMessage() && !isLoading()) {
+        <div class="error-message">
+          <p>{{ errorMessage() }}</p>
+          @if (!isAuthenticated()) {
+            <button class="btn-primary" routerLink="/starter">Se connecter</button>
+          }
+        </div>
+      }
+      
+      <!-- Empty state - Aucun rendez-vous -->
+      @if (!isLoading() && !errorMessage() && rendezVousList().length === 0) {
+        <div class="no-appointments-message">
+          <p>✓ Aucun rendez-vous</p>
+        </div>
+      }
+      
       <div class="appointments-list">
-        <div class="appointment-card">
-          <div class="appointment-header">
-            <h3>Dr. Sophie Martin</h3>
-            <span class="specialty">Cardiologue</span>
-          </div>
-          <div class="appointment-details">
-            <div class="detail-item">
-              <span class="icon">📅</span>
-              <span>Lundi 27 janvier 2026</span>
+        <!-- Liste dynamique des rendez-vous avec pagination -->
+        @for (rdv of getRendezVousPagines(); track rdv.id) {
+          <div class="appointment-card">
+            <div class="appointment-header">
+              <h3>Dr. {{ rdv.professionnel.prenom }} {{ rdv.professionnel.nom }}</h3>
+              <span class="specialty">{{ rdv.professionnel.specialite.nom }}</span>
             </div>
-            <div class="detail-item">
-              <span class="icon">🕐</span>
-              <span>14:30</span>
+            <div class="appointment-details">
+              <div class="detail-item">
+                <span class="icon">📅</span>
+                <span>{{ formatDate(rdv.date) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="icon">🕐</span>
+                <span>{{ rdv.heure_debut }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="icon">📍</span>
+                <span>{{ rdv.cabinet.nom }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="icon">🏥</span>
+                <span>{{ getModeLabel(rdv.mode) }}</span>
+              </div>
             </div>
-            <div class="detail-item">
-              <span class="icon">📍</span>
-              <span>Cabinet Paris 15ème</span>
-            </div>
-          </div>
-          <div class="appointment-actions">
-            <button class="btn-cancel">Annuler</button>
-            <button class="btn-modify">Modifier</button>
-          </div>
-        </div>
-
-        <div class="appointment-card">
-          <div class="appointment-header">
-            <h3>Dr. Jean Dupont</h3>
-            <span class="specialty">Dentiste</span>
-          </div>
-          <div class="appointment-details">
-            <div class="detail-item">
-              <span class="icon">📅</span>
-              <span>Vendredi 31 janvier 2026</span>
-            </div>
-            <div class="detail-item">
-              <span class="icon">🕐</span>
-              <span>10:00</span>
-            </div>
-            <div class="detail-item">
-              <span class="icon">📍</span>
-              <span>Cabinet Paris 10ème</span>
+            <div class="appointment-actions">
+              <button class="btn-cancel">Annuler</button>
+              <button class="btn-modify">Modifier</button>
             </div>
           </div>
-          <div class="appointment-actions">
-            <button class="btn-cancel">Annuler</button>
-            <button class="btn-modify">Modifier</button>
-          </div>
-        </div>
-
-        <div class="no-appointments" *ngIf="false">
-          <p>Aucun rendez-vous à venir</p>
-          <button class="btn-primary">Prendre un rendez-vous</button>
-        </div>
+        }
       </div>
+
+      <!-- Pagination -->
+      @if (rendezVousList().length > parPage) {
+        <div class="pagination">
+          <button 
+            class="pagination-btn" 
+            (click)="pagePrecedente()" 
+            [disabled]="pageActuelle() === 1"
+          >
+            Précédent
+          </button>
+          <span class="pagination-info">
+            Page {{ pageActuelle() }} sur {{ getTotalPages() }}
+          </span>
+          <button 
+            class="pagination-btn" 
+            (click)="pageSuivante()" 
+            [disabled]="pageActuelle() === getTotalPages()"
+          >
+            Suivant
+          </button>
+        </div>
+      }
     </div>
 
     <!-- Calendrier à droite -->
@@ -69,57 +93,24 @@
       <h2>Calendrier</h2>
       <div class="calendar">
         <div class="calendar-header">
-          <button class="nav-btn">‹</button>
-          <h3>Janvier 2026</h3>
-          <button class="nav-btn">›</button>
+          <button class="nav-btn" (click)="previousMonth()">‹</button>
+          <h3>{{ getMonthYear() }}</h3>
+          <button class="nav-btn" (click)="nextMonth()">›</button>
         </div>
         
         <div class="calendar-grid">
-          <div class="day-name">Lun</div>
-          <div class="day-name">Mar</div>
-          <div class="day-name">Mer</div>
-          <div class="day-name">Jeu</div>
-          <div class="day-name">Ven</div>
-          <div class="day-name">Sam</div>
-          <div class="day-name">Dim</div>
+          @for (dayName of daysOfWeek; track dayName) {
+            <div class="day-name">{{ dayName }}</div>
+          }
           
-          <!-- Jours vides du début -->
-          <div class="day empty"></div>
-          <div class="day empty"></div>
-          <div class="day empty"></div>
-          
-          <!-- Jours du mois -->
-          <div class="day">1</div>
-          <div class="day">2</div>
-          <div class="day">3</div>
-          <div class="day">4</div>
-          <div class="day">5</div>
-          <div class="day">6</div>
-          <div class="day">7</div>
-          <div class="day">8</div>
-          <div class="day">9</div>
-          <div class="day">10</div>
-          <div class="day">11</div>
-          <div class="day">12</div>
-          <div class="day">13</div>
-          <div class="day">14</div>
-          <div class="day">15</div>
-          <div class="day">16</div>
-          <div class="day">17</div>
-          <div class="day">18</div>
-          <div class="day">19</div>
-          <div class="day">20</div>
-          <div class="day">21</div>
-          <div class="day">22</div>
-          <div class="day today">23</div>
-          <div class="day">24</div>
-          <div class="day">25</div>
-          <div class="day">26</div>
-          <div class="day has-appointment">27</div>
-          <div class="day">28</div>
-          <div class="day">29</div>
-          <div class="day">30</div>
-          <div class="day has-appointment">31</div>
+          @for (dayInfo of calendarDays(); track $index) {
+            <div class="day" 
+                 [class.empty]="dayInfo.isEmpty"
+                 [class.today]="dayInfo.isToday"
+                 [class.has-appointment]="dayInfo.hasAppointment">
+              {{ dayInfo.day }}
+            </div>
+          }
         </div>
         
         <div class="calendar-legend">

@@ -4,8 +4,13 @@
   <h1>Bonjour {{ userDisplayName }}</h1>
   
   <div class="search-container">
-    <input type="text" class="search-input" placeholder="Trouver un rendez-vous">
-    <button class="search-button">Rechercher</button>
+    <input 
+      type="text" 
+      class="search-input" 
+      placeholder="Trouver un rendez-vous (nom, spécialité, ville...)" 
+      [(ngModel)]="motsCles"
+      (keyup.enter)="rechercher()">
+    <button class="search-button" (click)="rechercher()">Rechercher</button>
   </div>
 </div>
 
