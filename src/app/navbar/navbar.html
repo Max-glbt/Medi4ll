@@ -3,12 +3,26 @@
     <ul class="nav-links-left">
       <li><a routerLink="/home" routerLinkActive="nav-item-active" class="nav-item">Home</a></li>
       @if (!isAdminComputed()) {
-        <li><a routerLink="/prise-rdv" routerLinkActive="nav-item-active" class="nav-item">Réserver</a></li>
-        <li><a routerLink="/reservation" routerLinkActive="nav-item-active" class="nav-item">Mes rendez-vous</a></li>
-        <li><a routerLink="/profil" routerLinkActive="nav-item-active" class="nav-item">Profil</a></li>
+        @if (!isProfessionnel()) {
+          <li>
+            <a routerLink="/prise-rdv" routerLinkActive="nav-item-active" class="nav-item"
+              >Réserver</a
+            >
+          </li>
+          <li>
+            <a routerLink="/reservation" routerLinkActive="nav-item-active" class="nav-item"
+              >Mes rendez-vous</a
+            >
+          </li>
+        }
+        <li>
+          <a routerLink="/profil" routerLinkActive="nav-item-active" class="nav-item">Profil</a>
+        </li>
       }
       @if (isAdminComputed()) {
-        <li><a routerLink="/admin" routerLinkActive="nav-item-active" class="nav-item">Admin</a></li>
+        <li>
+          <a routerLink="/admin" routerLinkActive="nav-item-active" class="nav-item">Admin</a>
+        </li>
       }
     </ul>
 
@@ -18,9 +32,7 @@
       @if (!isAdminComputed()) {
         <a href="#" class="contact-btn" (click)="openContactModal($event)">Contact</a>
       }
-      <button class="logout-btn" (click)="onLogout()">
-        Déconnexion
-      </button>
+      <button class="logout-btn" (click)="onLogout()">Déconnexion</button>
     </div>
   </div>
 </nav>
@@ -44,18 +56,13 @@
       <form class="contact-form" (submit)="$event.preventDefault(); sendContactMessage()">
         <div class="form-group">
           <label>Votre email</label>
-          <input 
-            type="email" 
-            [value]="contactForm().email"
-            readonly
-            class="input-readonly"
-          />
+          <input type="email" [value]="contactForm().email" readonly class="input-readonly" />
         </div>
 
         <div class="form-group">
           <label>Sujet</label>
-          <input 
-            type="text" 
+          <input
+            type="text"
             [(ngModel)]="contactForm().subject"
             placeholder="Objet de votre message"
             [disabled]="isSending()"
@@ -65,7 +72,7 @@
 
         <div class="form-group">
           <label>Message</label>
-          <textarea 
+          <textarea
             [(ngModel)]="contactForm().message"
             rows="6"
             placeholder="Décrivez votre demande..."
@@ -79,7 +86,12 @@
         </div>
 
         <div class="modal-actions">
-          <button type="button" class="btn-cancel" (click)="closeContactModal()" [disabled]="isSending()">
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="closeContactModal()"
+            [disabled]="isSending()"
+          >
             Annuler
           </button>
           <button type="submit" class="btn-send" [disabled]="isSending()">

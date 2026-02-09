@@ -67,7 +67,7 @@ interface ProfessionnelProfile {
 
 interface DisponibiliteHoraire {
   id: number;
-  jour_semaine: number; // 0 = Lundi ... 6 = Dimanche
+  jour_semaine: number; 
   heure_debut: string;
   heure_fin: string;
   duree_creneau: number;
@@ -111,6 +111,9 @@ export class ProfilPage implements OnInit {
     heure_fin: '17:00',
     duree_creneau: 30
   });
+  editingDispoId = signal<number | null>(null);
+  editingDispo = signal<{ cabinet_id: number; jour_semaine: number; heure_debut: string; heure_fin: string; duree_creneau: number } | null>(null);
+  showAddDispoForm = signal(false);
   
   successMessage = signal('');
   errorMessage = signal('');
@@ -157,6 +160,7 @@ export class ProfilPage implements OnInit {
         this.rendezVousProfessionnel.set(data);
         this.loadProfessionnelProfile();
         this.loadDisponibilitesProfessionnel();
+        this.loadCabinets();
       },
       error: () => {
         this.isProfessionnel.set(false);
@@ -226,6 +230,16 @@ export class ProfilPage implements OnInit {
   joursLabels = Array.from({ length: 7 }, (_, i) => 
     new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date(2024, 0, 1 + i))
   );
+
+  getDisponibilitesByJour(jourIndex: number): DisponibiliteHoraire[] {
+    return this.disponibilites().filter(d => d.jour_semaine === jourIndex).sort((a, b) => {
+      return a.heure_debut.localeCompare(b.heure_debut);
+    });
+  }
+
+  hasDisponibilitesForJour(jourIndex: number): boolean {
+    return this.disponibilites().some(d => d.jour_semaine === jourIndex);
+  }
 
   loadProfessionnelProfile() {
     this.http.get<ProfessionnelProfile>(`${this.apiUrl}/professionnel/profile/`, { withCredentials: true }).subscribe({
@@ -350,6 +364,10 @@ export class ProfilPage implements OnInit {
       this.errorMessage.set('Veuillez sélectionner un cabinet');
       return;
     }
+    if (!this.validateHoraires(dispo.heure_debut, dispo.heure_fin)) {
+      this.errorMessage.set('L\'heure de fin doit être après l\'heure de début');
+      return;
+    }
     this.isLoading.set(true);
     this.http.post<DisponibiliteHoraire>(`${this.apiUrl}/professionnel/disponibilites/`, {
       cabinet_id: dispo.cabinet_id,
@@ -359,7 +377,15 @@ export class ProfilPage implements OnInit {
       duree_creneau: dispo.duree_creneau
     }, { withCredentials: true }).subscribe({
       next: () => {
-        this.successMessage.set('Disponibilité ajoutée');
+        this.successMessage.set('Disponibilité ajoutée avec succès');
+        this.newDispo.set({
+          cabinet_id: null,
+          jour_semaine: 0,
+          heure_debut: '09:00',
+          heure_fin: '17:00',
+          duree_creneau: 30
+        });
+        this.showAddDispoForm.set(false);
         this.loadDisponibilitesProfessionnel();
         this.isLoading.set(false);
         setTimeout(() => this.successMessage.set(''), 3000);
@@ -372,11 +398,64 @@ export class ProfilPage implements OnInit {
     });
   }
 
+  startEditDisponibilite(dispo: DisponibiliteHoraire) {
+    this.editingDispoId.set(dispo.id);
+    this.editingDispo.set({
+      cabinet_id: dispo.cabinet.id,
+      jour_semaine: dispo.jour_semaine,
+      heure_debut: dispo.heure_debut,
+      heure_fin: dispo.heure_fin,
+      duree_creneau: dispo.duree_creneau
+    });
+  }
+
+  cancelEditDisponibilite() {
+    this.editingDispoId.set(null);
+    this.editingDispo.set(null);
+  }
+
+  saveEditDisponibilite(id: number) {
+    const dispo = this.editingDispo();
+    if (!dispo) return;
+    if (!this.validateHoraires(dispo.heure_debut, dispo.heure_fin)) {
+      this.errorMessage.set('L\'heure de fin doit être après l\'heure de début');
+      return;
+    }
+    this.isLoading.set(true);
+    this.http.put<DisponibiliteHoraire>(`${this.apiUrl}/professionnel/disponibilites/${id}/`, {
+      cabinet_id: dispo.cabinet_id,
+      jour_semaine: dispo.jour_semaine,
+      heure_debut: dispo.heure_debut,
+      heure_fin: dispo.heure_fin,
+      duree_creneau: dispo.duree_creneau
+    }, { withCredentials: true }).subscribe({
+      next: () => {
+        this.successMessage.set('Disponibilité modifiée avec succès');
+        this.cancelEditDisponibilite();
+        this.loadDisponibilitesProfessionnel();
+        this.isLoading.set(false);
+        setTimeout(() => this.successMessage.set(''), 3000);
+      },
+      error: (err) => {
+        console.error('Erreur modification disponibilité:', err);
+        this.errorMessage.set('Erreur lors de la modification');
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  validateHoraires(debut: string, fin: string): boolean {
+    return debut < fin;
+  }
+
   deleteDisponibilite(id: number) {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer cette disponibilité ?')) {
+      return;
+    }
     this.isLoading.set(true);
     this.http.delete(`${this.apiUrl}/professionnel/disponibilites/${id}/`, { withCredentials: true }).subscribe({
       next: () => {
-        this.successMessage.set('Disponibilité supprimée');
+        this.successMessage.set('Disponibilité supprimée avec succès');
         this.loadDisponibilitesProfessionnel();
         this.isLoading.set(false);
         setTimeout(() => this.successMessage.set(''), 3000);

@@ -27,7 +27,10 @@ export class Navbar {
     return user?.is_admin || false;
   });
 
+  isProfessionnelSignal = signal(false);
+
   constructor(private authService: AuthService, private http: HttpClient) {
+    this.checkIfProfessionnel();
     const user = this.authService.currentUser();
     if (user) {
       this.contactForm.set({
@@ -44,6 +47,21 @@ export class Navbar {
 
   isAdmin(): boolean {
     return this.isAdminComputed();
+  }
+
+  checkIfProfessionnel(): void {
+    this.http.get('/api/rendez-vous/professionnel/', { withCredentials: true }).subscribe({
+      next: () => {
+        this.isProfessionnelSignal.set(true);
+      },
+      error: () => {
+        this.isProfessionnelSignal.set(false);
+      }
+    });
+  }
+
+  isProfessionnel(): boolean {
+    return this.isProfessionnelSignal();
   }
 
   openContactModal(event: Event): void {

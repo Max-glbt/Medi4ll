@@ -5,7 +5,6 @@
     <h1>Mon Profil</h1>
   </div>
 
-  <!-- Messages -->
   @if (successMessage()) {
     <div class="alert alert-success">{{ successMessage() }}</div>
   }
@@ -13,18 +12,17 @@
     <div class="alert alert-error">{{ errorMessage() }}</div>
   }
 
-  <!-- Onglets -->
   <div class="tabs">
-    <button 
-      class="tab" 
+    <button
+      class="tab"
       [class.active]="activeTab() === 'profile'"
       (click)="activeTab.set('profile')"
     >
       Mes informations
     </button>
     @if (isProfessionnel()) {
-      <button 
-        class="tab" 
+      <button
+        class="tab"
         [class.active]="activeTab() === 'rdv-pro'"
         (click)="activeTab.set('rdv-pro')"
       >
@@ -33,22 +31,16 @@
     }
   </div>
 
-  <!-- Contenu des onglets -->
   <div class="tab-content">
-    <!-- Onglet Profil -->
     @if (activeTab() === 'profile' && user()) {
       <div class="profile-section">
         <div class="section-header">
           <h2>Informations personnelles</h2>
           @if (!isEditingProfile()) {
-            <button class="btn-edit" (click)="isEditingProfile.set(true)">
-              Modifier
-            </button>
+            <button class="btn-edit" (click)="isEditingProfile.set(true)">Modifier</button>
           } @else {
             <div class="btn-group">
-              <button class="btn-cancel" (click)="isEditingProfile.set(false)">
-                Annuler
-              </button>
+              <button class="btn-cancel" (click)="isEditingProfile.set(false)">Annuler</button>
               <button class="btn-save" (click)="updateProfile()" [disabled]="isLoading()">
                 Enregistrer
               </button>
@@ -105,10 +97,15 @@
               </select>
             } @else {
               <p class="info-text">
-                @if (user()!.sexe === 'M') { Masculin }
-                @else if (user()!.sexe === 'F') { Féminin }
-                @else if (user()!.sexe === 'A') { Autre }
-                @else { - }
+                @if (user()!.sexe === 'M') {
+                  Masculin
+                } @else if (user()!.sexe === 'F') {
+                  Féminin
+                } @else if (user()!.sexe === 'A') {
+                  Autre
+                } @else {
+                  -
+                }
               </p>
             }
           </div>
@@ -187,11 +184,17 @@
               </select>
             } @else {
               <p class="info-text">
-                @if (user()!.preference_notification === 'email') { Email }
-                @else if (user()!.preference_notification === 'sms') { SMS }
-                @else if (user()!.preference_notification === 'les_deux') { Email et SMS }
-                @else if (user()!.preference_notification === 'aucune') { Aucune }
-                @else { - }
+                @if (user()!.preference_notification === 'email') {
+                  Email
+                } @else if (user()!.preference_notification === 'sms') {
+                  SMS
+                } @else if (user()!.preference_notification === 'les_deux') {
+                  Email et SMS
+                } @else if (user()!.preference_notification === 'aucune') {
+                  Aucune
+                } @else {
+                  -
+                }
               </p>
             }
           </div>
@@ -199,11 +202,10 @@
       </div>
     }
 
-    <!-- Onglet Rendez-vous professionnels -->
     @if (activeTab() === 'rdv-pro' && isProfessionnel()) {
       <div class="rdv-section">
         <h2>Mes rendez-vous en tant que professionnel</h2>
-        
+
         @if (rendezVousProfessionnel().length === 0) {
           <div class="empty-state">
             <p>Aucun rendez-vous programmé</p>
@@ -223,7 +225,10 @@
                 <div class="rdv-details">
                   <p><strong>Date:</strong> {{ formatDate(rdv.date) }}</p>
                   <p><strong>Heure:</strong> {{ rdv.heure_debut }} - {{ rdv.heure_fin }}</p>
-                  <p><strong>Mode:</strong> {{ rdv.mode === 'PRESENTIEL' ? 'En présentiel' : 'Téléconsultation' }}</p>
+                  <p>
+                    <strong>Mode:</strong>
+                    {{ rdv.mode === 'PRESENTIEL' ? 'En présentiel' : 'Téléconsultation' }}
+                  </p>
                   @if (rdv.cabinet) {
                     <p><strong>Lieu:</strong> {{ rdv.cabinet.nom }}</p>
                   }
@@ -233,15 +238,24 @@
                 </div>
                 <div class="rdv-actions">
                   @if (rdv.statut === 'EN_ATTENTE') {
-                    <button class="btn-action btn-confirm" (click)="updateRendezVousStatut(rdv.id, 'CONFIRME')">
+                    <button
+                      class="btn-action btn-confirm"
+                      (click)="updateRendezVousStatut(rdv.id, 'CONFIRME')"
+                    >
                       Confirmer
                     </button>
-                    <button class="btn-action btn-cancel-rdv" (click)="updateRendezVousStatut(rdv.id, 'ANNULE')">
+                    <button
+                      class="btn-action btn-cancel-rdv"
+                      (click)="updateRendezVousStatut(rdv.id, 'ANNULE')"
+                    >
                       Annuler
                     </button>
                   }
                   @if (rdv.statut === 'CONFIRME') {
-                    <button class="btn-action btn-complete" (click)="updateRendezVousStatut(rdv.id, 'TERMINE')">
+                    <button
+                      class="btn-action btn-complete"
+                      (click)="updateRendezVousStatut(rdv.id, 'TERMINE')"
+                    >
                       Marquer terminé
                     </button>
                   }
@@ -257,72 +271,197 @@
           <div class="form-grid">
             <div class="form-group">
               <label>Tarif consultation (€)</label>
-              <input type="number" [(ngModel)]="professionnelProfile()!.tarif_consultation" min="0" step="0.5" />
+              <input
+                type="number"
+                [(ngModel)]="professionnelProfile()!.tarif_consultation"
+                min="0"
+                step="0.5"
+              />
             </div>
             <div class="form-group">
               <label>Accepte la téléconsultation</label>
-              <input type="checkbox" [(ngModel)]="professionnelProfile()!.accepte_teleconsultation" />
+              <input
+                type="checkbox"
+                [(ngModel)]="professionnelProfile()!.accepte_teleconsultation"
+              />
             </div>
           </div>
-          <button class="btn-save" (click)="saveProfessionnelSettings()" [disabled]="isLoading()">Enregistrer</button>
+          <button class="btn-save" (click)="saveProfessionnelSettings()" [disabled]="isLoading()">
+            Enregistrer
+          </button>
         } @else {
           <p>Chargement du profil professionnel...</p>
         }
       </div>
 
       <div class="pro-dispos">
-        <h2>Mes disponibilités</h2>
-        <div class="dispo-list">
-          @if (disponibilites().length === 0) {
-            <p>Aucune disponibilité configurée.</p>
-          } @else {
-            @for (d of disponibilites(); track d.id) {
-              <div class="dispo-item">
-                <div>
-                  <strong>{{ joursLabels[d.jour_semaine] }}</strong> | {{ d.heure_debut }} - {{ d.heure_fin }} | {{ d.duree_creneau }} min | Cabinet: {{ d.cabinet.nom }}
-                </div>
-                <button class="btn-cancel" (click)="deleteDisponibilite(d.id)">Supprimer</button>
-              </div>
-            }
+        <div class="section-header">
+          <h2>Mes horaires d'ouverture</h2>
+          @if (!showAddDispoForm()) {
+            <button class="btn-add" (click)="showAddDispoForm.set(true)">
+              + Ajouter une disponibilité
+            </button>
           }
         </div>
 
-        <h3>Ajouter une disponibilité</h3>
-        @if (professionnelProfile()?.cabinets?.length) {
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Cabinet</label>
-              <select [(ngModel)]="newDispo().cabinet_id">
-                <option [ngValue]="null">Choisir...</option>
-                @for (cab of professionnelProfile()!.cabinets!; track cab.id) {
-                  <option [ngValue]="cab.id">{{ cab.nom }}</option>
-                }
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Jour</label>
-              <select [(ngModel)]="newDispo().jour_semaine">
-                @for (day of [0,1,2,3,4,5,6]; track day) {
-                  <option [ngValue]="day">{{ joursLabels[day] }}</option>
-                }
-              </select>
-            </div>
-            <div class="form-group">
-              <label>Heure début</label>
-              <input type="time" [(ngModel)]="newDispo().heure_debut" />
-            </div>
-            <div class="form-group">
-              <label>Heure fin</label>
-              <input type="time" [(ngModel)]="newDispo().heure_fin" />
-            </div>
-            <div class="form-group">
-              <label>Durée créneau (min)</label>
-              <input type="number" [(ngModel)]="newDispo().duree_creneau" min="5" step="5" />
-            </div>
+        @if (disponibilites().length === 0) {
+          <div class="empty-state">
+            <p>
+              Aucune disponibilité configurée. Ajoutez vos horaires d'ouverture pour que les
+              patients puissent prendre rendez-vous.
+            </p>
           </div>
-          <button class="btn-save" (click)="addDisponibilite()" [disabled]="isLoading()">Ajouter</button>
         } @else {
-          <p>Ajoutez d'abord un cabinet à votre profil.</p>
+          <div class="horaires-semaine">
+            @for (jourIndex of [0, 1, 2, 3, 4, 5, 6]; track jourIndex) {
+              <div class="jour-section" [class.has-dispos]="hasDisponibilitesForJour(jourIndex)">
+                <div class="jour-header">
+                  <h3>{{ joursLabels[jourIndex] }}</h3>
+                </div>
+                <div class="jour-dispos">
+                  @if (getDisponibilitesByJour(jourIndex).length === 0) {
+                    <p class="closed">Fermé</p>
+                  } @else {
+                    @for (d of getDisponibilitesByJour(jourIndex); track d.id) {
+                      <div class="dispo-card">
+                        @if (editingDispoId() === d.id) {
+                          <!-- Mode édition -->
+                          <div class="dispo-edit-form">
+                            <div class="form-row">
+                              <div class="form-group-small">
+                                <label>Cabinet</label>
+                                <select [(ngModel)]="editingDispo()!.cabinet_id">
+                                  @for (cab of professionnelProfile()!.cabinets!; track cab.id) {
+                                    <option [ngValue]="cab.id">{{ cab.nom }}</option>
+                                  }
+                                </select>
+                              </div>
+                              <div class="form-group-small">
+                                <label>Début</label>
+                                <input type="time" [(ngModel)]="editingDispo()!.heure_debut" />
+                              </div>
+                              <div class="form-group-small">
+                                <label>Fin</label>
+                                <input type="time" [(ngModel)]="editingDispo()!.heure_fin" />
+                              </div>
+                              <div class="form-group-small">
+                                <label>Créneau (min)</label>
+                                <input
+                                  type="number"
+                                  [(ngModel)]="editingDispo()!.duree_creneau"
+                                  min="5"
+                                  step="5"
+                                />
+                              </div>
+                            </div>
+                            <div class="btn-group-inline">
+                              <button
+                                class="btn-save-small"
+                                (click)="saveEditDisponibilite(d.id)"
+                                [disabled]="isLoading()"
+                              >
+                                Enregistrer
+                              </button>
+                              <button class="btn-cancel-small" (click)="cancelEditDisponibilite()">
+                                Annuler
+                              </button>
+                            </div>
+                          </div>
+                        } @else {
+                          <div class="dispo-info">
+                            <div class="dispo-time">
+                              <span class="time-range"
+                                >{{ d.heure_debut }} - {{ d.heure_fin }}</span
+                              >
+                              <span class="creneau-info"
+                                >Créneaux de {{ d.duree_creneau }} min</span
+                              >
+                            </div>
+                            <div class="dispo-cabinet">
+                              <span class="cabinet-label">📍 {{ d.cabinet.nom }}</span>
+                            </div>
+                          </div>
+                          <div class="dispo-actions">
+                            <button
+                              class="btn-edit-small"
+                              (click)="startEditDisponibilite(d)"
+                              title="Modifier"
+                            ></button>
+                            <button
+                              class="btn-delete-small"
+                              (click)="deleteDisponibilite(d.id)"
+                              title="Supprimer"
+                            ></button>
+                          </div>
+                        }
+                      </div>
+                    }
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (showAddDispoForm()) {
+          <div class="add-dispo-form">
+            <h3>Ajouter une nouvelle disponibilité</h3>
+            @if (professionnelProfile()?.cabinets?.length) {
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>Cabinet *</label>
+                  <select [(ngModel)]="newDispo().cabinet_id">
+                    <option [ngValue]="null">Choisir un cabinet...</option>
+                    @for (cab of professionnelProfile()!.cabinets!; track cab.id) {
+                      <option [ngValue]="cab.id">{{ cab.nom }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Jour de la semaine *</label>
+                  <select [(ngModel)]="newDispo().jour_semaine">
+                    @for (day of [0, 1, 2, 3, 4, 5, 6]; track day) {
+                      <option [ngValue]="day">{{ joursLabels[day] }}</option>
+                    }
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Heure de début *</label>
+                  <input type="time" [(ngModel)]="newDispo().heure_debut" step="300" />
+                </div>
+                <div class="form-group">
+                  <label>Heure de fin *</label>
+                  <input type="time" [(ngModel)]="newDispo().heure_fin" step="300" />
+                </div>
+                <div class="form-group">
+                  <label>Durée d'un créneau (minutes) *</label>
+                  <input
+                    type="number"
+                    [(ngModel)]="newDispo().duree_creneau"
+                    min="5"
+                    step="5"
+                    placeholder="30"
+                  />
+                  <small>Durée de chaque rendez-vous (ex: 15, 30, 45 min)</small>
+                </div>
+              </div>
+              <div class="btn-group">
+                <button
+                  class="btn-save"
+                  (click)="addDisponibilite()"
+                  [disabled]="isLoading() || !newDispo().cabinet_id"
+                >
+                  Ajouter la disponibilité
+                </button>
+                <button class="btn-cancel" (click)="showAddDispoForm.set(false)">Annuler</button>
+              </div>
+            } @else {
+              <p class="warning-message">
+                Vous devez d'abord ajouter un cabinet à votre profil dans la section ci-dessous.
+              </p>
+              <button class="btn-cancel" (click)="showAddDispoForm.set(false)">Fermer</button>
+            }
+          </div>
         }
       </div>
 
@@ -357,8 +496,16 @@
                   </div>
                 </div>
                 <div class="btn-group">
-                  <button class="btn-save" (click)="updateCabinet(cab)" [disabled]="isLoading()">Enregistrer</button>
-                  <button class="btn-cancel" (click)="deleteCabinet(cab.id)" [disabled]="isLoading()">Supprimer</button>
+                  <button class="btn-save" (click)="updateCabinet(cab)" [disabled]="isLoading()">
+                    Enregistrer
+                  </button>
+                  <button
+                    class="btn-cancel"
+                    (click)="deleteCabinet(cab.id)"
+                    [disabled]="isLoading()"
+                  >
+                    Supprimer
+                  </button>
                 </div>
               </div>
             }
