@@ -4,6 +4,7 @@ import { Router, RouterModule } from '@angular/router';
 import { Navbar } from '../navbar/navbar';
 import { RendezvousService, RendezVous } from '../services/rendezvous.service';
 import { AuthService } from '../services/auth.service';
+import { ConstantsService } from '../services/constants.service';
 
 @Component({
   selector: 'app-reservation',
@@ -15,23 +16,23 @@ export class Reservation implements OnInit {
   private rendezvousService = inject(RendezvousService);
   private authService = inject(AuthService);
   private router = inject(Router);
+  private constantsService = inject(ConstantsService);
   
   rendezVousList = signal<RendezVous[]>([]);
   isLoading = signal(true);
   errorMessage = signal('');
   isAuthenticated = this.authService.isAuthenticated;
 
-  // Pagination
   pageActuelle = signal<number>(1);
   parPage = 20;
 
-  // Calendrier
   currentDate = signal(new Date());
   calendarDays = signal<any[]>([]);
-  daysOfWeek = ['Lun', 'Mar', 'Mer', 'Jeu', 'Ven', 'Sam', 'Dim'];
+  daysOfWeek = Array.from({ length: 7 }, (_, i) => 
+    new Intl.DateTimeFormat('fr-FR', { weekday: 'short' }).format(new Date(2024, 0, 1 + i))
+  );
 
   ngOnInit() {
-    // Vérifier si l'utilisateur est connecté
     if (!this.authService.isAuthenticated()) {
       this.errorMessage.set('Vous devez être connecté pour voir vos rendez-vous.');
       this.isLoading.set(false);
@@ -48,7 +49,7 @@ export class Reservation implements OnInit {
       next: (data) => {
         this.rendezVousList.set(data);
         this.isLoading.set(false);
-        this.generateCalendar(); // Regénérer le calendrier avec les rendez-vous
+        this.generateCalendar(); 
       },
       error: (error) => {
         console.error('Erreur lors du chargement des rendez-vous:', error);
@@ -69,25 +70,19 @@ export class Reservation implements OnInit {
     const year = date.getFullYear();
     const month = date.getMonth();
     
-    // Premier jour du mois
     const firstDay = new Date(year, month, 1);
-    // Dernier jour du mois
     const lastDay = new Date(year, month + 1, 0);
     
-    // Jour de la semaine du premier jour (0 = dimanche, 1 = lundi, etc.)
     let firstDayOfWeek = firstDay.getDay();
-    // Convertir pour que lundi = 0
     firstDayOfWeek = firstDayOfWeek === 0 ? 6 : firstDayOfWeek - 1;
     
     const daysInMonth = lastDay.getDate();
     const days: any[] = [];
     
-    // Jours vides au début
     for (let i = 0; i < firstDayOfWeek; i++) {
       days.push({ day: null, isEmpty: true });
     }
     
-    // Jours du mois
     const today = new Date();
     const rendezVousDates = this.getRendezVousDates();
     
@@ -137,38 +132,30 @@ export class Reservation implements OnInit {
 
   getMonthYear(): string {
     const date = this.currentDate();
-    const months = ['Janvier', 'Février', 'Mars', 'Avril', 'Mai', 'Juin',
-                    'Juillet', 'Août', 'Septembre', 'Octobre', 'Novembre', 'Décembre'];
-    return `${months[date.getMonth()]} ${date.getFullYear()}`;
+    return new Intl.DateTimeFormat('fr-FR', { 
+      month: 'long', 
+      year: 'numeric' 
+    }).format(date);
   }
 
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    const days = ['Dimanche', 'Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi'];
-    const months = ['janvier', 'février', 'mars', 'avril', 'mai', 'juin', 
-                    'juillet', 'août', 'septembre', 'octobre', 'novembre', 'décembre'];
-    return `${days[date.getDay()]} ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
+    return new Intl.DateTimeFormat('fr-FR', { 
+      weekday: 'long', 
+      day: 'numeric', 
+      month: 'long', 
+      year: 'numeric' 
+    }).format(date);
   }
 
   getStatutLabel(statut: string): string {
-    const statuts: { [key: string]: string } = {
-      'CONFIRME': 'Confirmé',
-      'EN_ATTENTE': 'En attente',
-      'ANNULE': 'Annulé',
-      'TERMINE': 'Terminé'
-    };
-    return statuts[statut] || statut;
+    return this.constantsService.getStatutLabel(statut);
   }
 
   getModeLabel(mode: string): string {
-    const modes: { [key: string]: string } = {
-      'PRESENTIEL': 'Présentiel',
-      'TELECONSULTATION': 'Téléconsultation'
-    };
-    return modes[mode] || mode;
+    return this.constantsService.getModeLabel(mode);
   }
 
-  // Pagination
   getRendezVousPagines(): RendezVous[] {
     const debut = (this.pageActuelle() - 1) * this.parPage;
     const fin = debut + this.parPage;

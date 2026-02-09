@@ -83,7 +83,6 @@ export class StarterPage implements OnInit {
     this.errorMessage = '';
     this.successMessage = '';
     
-    // Ajouter la validation de spécialité si professionnel
     if (type === 'professionnel') {
       this.registerForm.get('specialite')?.setValidators([Validators.required]);
     } else {
@@ -108,7 +107,6 @@ export class StarterPage implements OnInit {
 
     const { email, password } = this.loginForm.value;
 
-    // Appel du service d'authentification
     this.authService.loginWithEmail(email, password)
       .then(user => {
         this.authService.login(user);
@@ -130,7 +128,6 @@ export class StarterPage implements OnInit {
 
     const { firstName, lastName, email, password, specialite } = this.registerForm.value;
 
-    // Appel du service d'authentification
     this.authService.register({ 
       firstName, 
       lastName, 
@@ -142,13 +139,11 @@ export class StarterPage implements OnInit {
       .then(async (response) => {
         this.isLoading = false;
         
-        // Connexion automatique côté serveur après inscription
         try {
           const user = await this.authService.loginWithEmail(email, password);
           this.authService.login(user);
           this.router.navigate(['/home']);
         } catch (e) {
-          // Si la connexion échoue, afficher un message mais rester sur la page
           this.errorMessage = 'Compte créé, mais connexion automatique impossible. Veuillez vous connecter.';
         }
       })

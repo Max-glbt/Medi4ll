@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { Navbar } from '../navbar/navbar';
+import { ConstantsService } from '../services/constants.service';
 
 interface User {
   id: number;
@@ -92,16 +93,14 @@ interface Cabinet {
 export class ProfilPage implements OnInit {
   private apiUrl = '/api';
   
-  // User data
   user = signal<User | null>(null);
   isEditingProfile = signal(false);
   
-  // Rendez-vous
   rendezVousPatient = signal<RendezVous[]>([]);
   rendezVousProfessionnel = signal<RendezVous[]>([]);
   isProfessionnel = signal(false);
   activeTab = signal<'profile' | 'rdv-patient' | 'rdv-pro'>('profile');
-  // Pro management
+
   professionnelProfile = signal<ProfessionnelProfile | null>(null);
   disponibilites = signal<DisponibiliteHoraire[]>([]);
   cabinets = signal<Cabinet[]>([]);
@@ -113,12 +112,14 @@ export class ProfilPage implements OnInit {
     duree_creneau: 30
   });
   
-  // Messages
   successMessage = signal('');
   errorMessage = signal('');
   isLoading = signal(false);
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private constantsService: ConstantsService
+  ) {}
 
   ngOnInit() {
     this.loadUserProfile();
@@ -154,12 +155,10 @@ export class ProfilPage implements OnInit {
       next: (data) => {
         this.isProfessionnel.set(true);
         this.rendezVousProfessionnel.set(data);
-        // Charger profil pro et disponibilités
         this.loadProfessionnelProfile();
         this.loadDisponibilitesProfessionnel();
       },
       error: () => {
-        // Pas un professionnel, c'est normal
         this.isProfessionnel.set(false);
       }
     });
@@ -191,7 +190,6 @@ export class ProfilPage implements OnInit {
   updateRendezVousStatut(rdvId: number, nouveauStatut: string) {
     this.http.put(`${this.apiUrl}/rendez-vous/${rdvId}/statut/`, { statut: nouveauStatut }, { withCredentials: true }).subscribe({
       next: () => {
-        // Recharger les rendez-vous
         this.http.get<RendezVous[]>(`${this.apiUrl}/rendez-vous/professionnel/`, { withCredentials: true }).subscribe({
           next: (data) => {
             this.rendezVousProfessionnel.set(data);
@@ -208,37 +206,26 @@ export class ProfilPage implements OnInit {
   }
 
   getStatutBadgeClass(statut: string): string {
-    const classes: Record<string, string> = {
-      'EN_ATTENTE': 'badge-warning',
-      'CONFIRME': 'badge-success',
-      'TERMINE': 'badge-info',
-      'ANNULE': 'badge-danger'
-    };
-    return classes[statut] || 'badge-default';
+    return this.constantsService.getStatutBadgeClass(statut);
   }
 
   getStatutLabel(statut: string): string {
-    const labels: Record<string, string> = {
-      'EN_ATTENTE': 'En attente',
-      'CONFIRME': 'Confirmé',
-      'TERMINE': 'Terminé',
-      'ANNULE': 'Annulé'
-    };
-    return labels[statut] || statut;
+    return this.constantsService.getStatutLabel(statut);
   }
 
   formatDate(dateStr: string): string {
     const date = new Date(dateStr);
-    return date.toLocaleDateString('fr-FR', { 
+    return new Intl.DateTimeFormat('fr-FR', { 
       weekday: 'long', 
       year: 'numeric', 
       month: 'long', 
       day: 'numeric' 
-    });
+    }).format(date);
   }
 
-  // ----- Gestion du professionnel -----
-  joursLabels = ['Lundi', 'Mardi', 'Mercredi', 'Jeudi', 'Vendredi', 'Samedi', 'Dimanche'];
+  joursLabels = Array.from({ length: 7 }, (_, i) => 
+    new Intl.DateTimeFormat('fr-FR', { weekday: 'long' }).format(new Date(2024, 0, 1 + i))
+  );
 
   loadProfessionnelProfile() {
     this.http.get<ProfessionnelProfile>(`${this.apiUrl}/professionnel/profile/`, { withCredentials: true }).subscribe({
@@ -276,7 +263,6 @@ export class ProfilPage implements OnInit {
     });
   }
 
-  // ----- Gestion des cabinets -----
   loadCabinets() {
     this.http.get<Cabinet[]>(`${this.apiUrl}/professionnel/cabinets/`, { withCredentials: true }).subscribe({
       next: (data) => this.cabinets.set(data),

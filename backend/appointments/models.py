@@ -5,7 +5,6 @@ from django.utils import timezone
 
 
 class User(AbstractUser):
-    """Patient"""
     TYPE_COMPTE_CHOICES = [
         ('client', 'Client'),
         ('professionnel', 'Professionnel'),
@@ -69,7 +68,6 @@ class User(AbstractUser):
 
 
 class Specialite(models.Model):
-    """Spécialité médicale"""
     nom = models.CharField(max_length=100, unique=True, verbose_name="Nom de la spécialité")
     description = models.TextField(blank=True)
     icone = models.CharField(max_length=50, blank=True, help_text="Nom de l'icône ou classe CSS")
@@ -84,7 +82,6 @@ class Specialite(models.Model):
 
 
 class Cabinet(models.Model):
-    """Cabinet médical"""
     nom = models.CharField(max_length=200, verbose_name="Nom du cabinet")
     
     adresse = models.TextField(verbose_name="Adresse")
@@ -106,7 +103,6 @@ class Cabinet(models.Model):
 
 
 class Professionnel(models.Model):
-    """Professionnel de santé"""
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100, verbose_name="Prénom")
     email = models.EmailField(unique=True)
@@ -181,7 +177,6 @@ class Professionnel(models.Model):
 
 
 class ProfessionnelCabinet(models.Model):
-    """Association Professionnel-Cabinet"""
     professionnel = models.ForeignKey(Professionnel, on_delete=models.CASCADE)
     cabinet = models.ForeignKey(Cabinet, on_delete=models.CASCADE)
     
@@ -200,7 +195,6 @@ class ProfessionnelCabinet(models.Model):
 
 
 class MotifConsultation(models.Model):
-    """Motif de consultation"""
     specialite = models.ForeignKey(
         Specialite, 
         on_delete=models.CASCADE, 
@@ -231,7 +225,6 @@ class MotifConsultation(models.Model):
 
 
 class DisponibiliteHoraire(models.Model):
-    """Disponibilité horaire"""
     professionnel = models.ForeignKey(
         Professionnel, 
         on_delete=models.CASCADE, 
@@ -270,7 +263,6 @@ class DisponibiliteHoraire(models.Model):
 
 
 class RendezVous(models.Model):
-    """Rendez-vous"""
     patient = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 
@@ -337,7 +329,6 @@ class RendezVous(models.Model):
 
 
 class Favoris(models.Model):
-    """Favori"""
     patient = models.ForeignKey(
         User, 
         on_delete=models.CASCADE, 

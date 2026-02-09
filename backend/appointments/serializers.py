@@ -27,7 +27,6 @@ class ProfessionnelSerializer(serializers.ModelSerializer):
                   'tarif_consultation', 'accepte_teleconsultation', 'statut_validation', 'cabinets']
     
     def get_cabinets(self, obj):
-        # Récupère les cabinets via la relation ManyToMany
         cabinets = obj.cabinets.all()
         return CabinetSerializer(cabinets, many=True).data
 
@@ -87,7 +86,6 @@ class UserSerializer(serializers.ModelSerializer):
         extra_kwargs = {'password': {'write_only': True}}
     
     def create(self, validated_data):
-        # Extraire le mot de passe et le type de compte
         password = validated_data.pop('password', None)
         type_compte = validated_data.pop('type_compte', 'client')
         user = User(**validated_data)

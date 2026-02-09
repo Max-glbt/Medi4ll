@@ -22,7 +22,6 @@ export class Navbar {
   errorMessage = signal('');
   isSending = signal(false);
 
-  // Signal computed pour réagir aux changements de l'utilisateur
   isAdminComputed = computed(() => {
     const user = this.authService.currentUser();
     return user?.is_admin || false;
@@ -77,7 +76,6 @@ export class Navbar {
     this.isSending.set(true);
     this.errorMessage.set('');
 
-    // Simuler l'envoi d'email (vous pouvez créer un endpoint backend si besoin)
     setTimeout(() => {
       this.successMessage.set('Message envoyé avec succès à support@medi4all.fr');
       this.isSending.set(false);

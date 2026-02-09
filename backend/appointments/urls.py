@@ -17,12 +17,10 @@ urlpatterns = [
     path('professionnels/manage/', views.professionnels_list_create, name='professionnels-manage'),
     path('professionnels/manage/<int:pk>/', views.professionnel_detail, name='professionnel-detail'),
     path('cabinets/', views.get_cabinets, name='cabinets'),
-    # Admin endpoints
     path('admin/rendez-vous/', views.admin_rendez_vous, name='admin-rendez-vous'),
     path('admin/rendez-vous/<int:rdv_id>/', views.admin_rendez_vous, name='admin-rendez-vous-delete'),
     path('admin/clients/', views.admin_clients, name='admin-clients'),
     path('admin/clients/<int:client_id>/', views.admin_clients, name='admin-clients-delete'),
-    # Professionnel self-management
     path('professionnel/disponibilites/', views.manage_disponibilites, name='manage-disponibilites'),
     path('professionnel/disponibilites/<int:dispo_id>/', views.manage_disponibilite_detail, name='manage-disponibilite-detail'),
     path('professionnel/profile/', views.manage_professionnel_profile, name='manage-professionnel-profile'),

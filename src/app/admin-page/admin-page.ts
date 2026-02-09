@@ -66,10 +66,8 @@ type TabType = 'professionnels' | 'rendez-vous' | 'clients';
 export class AdminPage implements OnInit {
   private apiUrl = '/api';
   
-  // Onglet actif
   activeTab = signal<TabType>('professionnels');
   
-  // Professionnels
   professionnels = signal<Professionnel[]>([]);
   specialites = signal<Specialite[]>([]);
   isEditingProf = signal(false);
@@ -84,13 +82,10 @@ export class AdminPage implements OnInit {
     statut_validation: 'VALIDE'
   });
   
-  // Rendez-vous
   rendezVous = signal<RendezVous[]>([]);
   
-  // Clients
   clients = signal<Client[]>([]);
   
-  // Pagination
   pageProfessionnels = signal(1);
   pageRendezVous = signal(1);
   pageClients = signal(1);
@@ -108,7 +103,6 @@ export class AdminPage implements OnInit {
     this.loadClients();
   }
 
-  // Gestion des onglets
   setTab(tab: TabType) {
     this.activeTab.set(tab);
     this.isEditingProf.set(false);
@@ -181,7 +175,6 @@ export class AdminPage implements OnInit {
     const prof = this.currentProfessionnel();
     
     if (prof.id) {
-      // Update
       this.http.put(`${this.apiUrl}/professionnels/manage/${prof.id}/`, prof, {
         withCredentials: true
       }).subscribe({
@@ -197,7 +190,6 @@ export class AdminPage implements OnInit {
         }
       });
     } else {
-      // Create
       this.http.post(`${this.apiUrl}/professionnels/manage/`, prof, {
         withCredentials: true
       }).subscribe({
@@ -273,7 +265,6 @@ export class AdminPage implements OnInit {
     this.isEditingProf.set(false);
   }
 
-  // Pagination
   getProfessionnelsPagines(): Professionnel[] {
     const debut = (this.pageProfessionnels() - 1) * this.parPage;
     return this.professionnels().slice(debut, debut + this.parPage);

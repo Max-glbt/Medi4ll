@@ -45,33 +45,27 @@ export class PriseRDVPage implements OnInit {
   private router = inject(Router);
   private route = inject(ActivatedRoute);
   
-  // Données
   specialites = signal<Specialite[]>([]);
   professionnels = signal<Professionnel[]>([]);
   professionnelsFiltres = signal<Professionnel[]>([]);
   
-  // Pagination
   pageActuelle = signal<number>(1);
   parPage = 20;
   
-  // Filtres de recherche
   motsCles = signal<string>('');
   villeRecherche = signal<string>('');
   specialiteSelectionnee = signal<number | null>(null);
   prixMax = signal<number | null>(null);
   
-  // État de chargement
   isLoading = signal<boolean>(false);
   errorMessage = signal<string>('');
 
   ngOnInit() {
     this.chargerDonnees();
     
-    // Récupérer les paramètres de recherche depuis l'URL
     this.route.queryParams.subscribe(params => {
       if (params['q']) {
         this.motsCles.set(params['q']);
-        // Attendre que les données soient chargées avant de rechercher
         setTimeout(() => this.rechercherProfessionnels(), 100);
       }
     });
@@ -82,13 +76,11 @@ export class PriseRDVPage implements OnInit {
     this.errorMessage.set('');
     
     try {
-      // Charger les spécialités
       const specialites = await this.http.get<Specialite[]>('/api/specialites/', {
         withCredentials: true
       }).toPromise();
       this.specialites.set(specialites || []);
       
-      // Charger les professionnels
       const professionnels = await this.http.get<Professionnel[]>('/api/professionnels/', {
         withCredentials: true
       }).toPromise();
@@ -111,7 +103,6 @@ export class PriseRDVPage implements OnInit {
     
     let resultats = this.professionnels();
     
-    // Filtre par mots-clés (recherche dans nom, prénom, spécialité, ville)
     if (motsCles) {
       resultats = resultats.filter(prof => {
         const nomComplet = `${prof.nom} ${prof.prenom}`.toLowerCase();
@@ -124,7 +115,6 @@ export class PriseRDVPage implements OnInit {
       });
     }
     
-    // Filtre par ville
     if (ville) {
       resultats = resultats.filter(prof => 
         prof.cabinets?.some(cabinet => 
@@ -135,18 +125,16 @@ export class PriseRDVPage implements OnInit {
       );
     }
     
-    // Filtre par spécialité
     if (specialiteId) {
       resultats = resultats.filter(prof => prof.specialite.id === specialiteId);
     }
     
-    // Filtre par prix max
     if (prixMax !== null) {
       resultats = resultats.filter(prof => parseFloat(prof.tarif_consultation) <= prixMax);
     }
     
     this.professionnelsFiltres.set(resultats);
-    this.pageActuelle.set(1); // Réinitialiser à la page 1
+    this.pageActuelle.set(1);
   }
 
   reinitialiserFiltres() {
@@ -158,7 +146,6 @@ export class PriseRDVPage implements OnInit {
     this.pageActuelle.set(1);
   }
 
-  // Pagination
   getProfessionnelsPagines(): Professionnel[] {
     const debut = (this.pageActuelle() - 1) * this.parPage;
     const fin = debut + this.parPage;
@@ -197,20 +184,16 @@ export class PriseRDVPage implements OnInit {
     const current = this.pageActuelle();
     const pages: number[] = [];
     
-    // Toujours afficher la première page
     pages.push(1);
     
-    // Ajouter les pages autour de la page actuelle
     for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) {
       pages.push(i);
     }
     
-    // Toujours afficher la dernière page
     if (total > 1) {
       pages.push(total);
     }
     
-    // Supprimer les doublons et trier
     return [...new Set(pages)].sort((a, b) => a - b);
   }
 
@@ -252,7 +235,6 @@ export class PriseRDVPage implements OnInit {
   }
 
   ouvrirDetailsProfessionnel(professionnel: Professionnel) {
-    // Stocker le professionnel sélectionné dans localStorage pour le récupérer sur la page suivante
     localStorage.setItem('professionnelSelectionne', JSON.stringify(professionnel));
     this.router.navigate(['/prise-rdv', professionnel.id]);
   }

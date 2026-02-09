@@ -12,12 +12,10 @@ from .serializers import (
 )
 
 
-# CRUD Professionnels
 @api_view(['GET', 'POST'])
 @csrf_exempt
 def professionnels_list_create(request):
     """Liste tous les professionnels ou crée un nouveau professionnel - Réservé aux admins"""
-    # Vérifier que l'utilisateur est admin
     if not request.user.is_authenticated or not request.user.is_admin:
         return Response({'error': 'Accès réservé aux administrateurs'}, status=status.HTTP_403_FORBIDDEN)
     
@@ -39,7 +37,6 @@ def professionnels_list_create(request):
 @csrf_exempt
 def professionnel_detail(request, pk):
     """Récupère, modifie ou supprime un professionnel - Réservé aux admins"""
-    # Vérifier que l'utilisateur est admin
     if not request.user.is_authenticated or not request.user.is_admin:
         return Response({'error': 'Accès réservé aux administrateurs'}, status=status.HTTP_403_FORBIDDEN)
     try:
@@ -72,11 +69,9 @@ def register_user(request):
     if serializer.is_valid():
         user = serializer.save()
         
-        # Si c'est un professionnel, créer automatiquement l'objet Professionnel
         if request.data.get('type_compte') == 'professionnel' and request.data.get('specialite_id'):
             try:
                 specialite = Specialite.objects.get(id=request.data.get('specialite_id'))
-                # Générer un numero_rpps unique basé sur l'ID et le timestamp
                 import time
                 numero_rpps = f"TEMP{user.id}{int(time.time()) % 1000000}"
                 
@@ -91,7 +86,7 @@ def register_user(request):
                     bio='',
                     tarif_consultation=50,
                     accepte_teleconsultation=False,
-                    statut_validation='EN_ATTENTE'
+                    statut_validation='en_attente'
                 )
             except Specialite.DoesNotExist:
                 pass
@@ -114,23 +109,29 @@ def register_user(request):
 @csrf_exempt
 def login_user(request):
     """Authentification d'un utilisateur avec session"""
-    # Accepter soit l'email, soit le username
     email = request.data.get('email')
     username = request.data.get('username')
     password = request.data.get('password')
     
-    # Si email fourni, retrouver le username correspondant
+    print(f"[LOGIN DEBUG] Email: {email}, Username: {username}, Password present: {bool(password)}")
+    
     from .models import User
     if email and not username:
         try:
             u = User.objects.get(email=email)
             username = u.username
+            print(f"[LOGIN DEBUG] Found username from email: {username}")
         except User.DoesNotExist:
             username = None
+            print(f"[LOGIN DEBUG] No user found with email: {email}")
     
+    print(f"[LOGIN DEBUG] Attempting authentication with username: {username}")
     user = authenticate(request, username=username, password=password)
+    print(f"[LOGIN DEBUG] Authentication result: {user}")
+    
     if user:
-        login(request, user)  # Crée la session
+        login(request, user)  
+        print(f"[LOGIN DEBUG] User logged in successfully: {user.username}")
         return Response({
             'message': 'Connexion réussie',
             'user': {
@@ -142,6 +143,7 @@ def login_user(request):
                 'is_admin': user.is_admin
             }
         }, status=status.HTTP_200_OK)
+    print(f"[LOGIN DEBUG] Authentication failed - incorrect credentials")
     return Response({'error': 'Identifiants incorrects'}, status=status.HTTP_401_UNAUTHORIZED)
 
 
@@ -162,7 +164,6 @@ def check_admin(request):
     return Response({'is_admin': request.user.is_admin}, status=status.HTTP_200_OK)
 
 
-# Admin - Gestion des rendez-vous
 @api_view(['GET', 'DELETE'])
 @csrf_exempt
 def admin_rendez_vous(request, rdv_id=None):
@@ -184,7 +185,6 @@ def admin_rendez_vous(request, rdv_id=None):
             return Response({'error': 'Rendez-vous non trouvé'}, status=status.HTTP_404_NOT_FOUND)
 
 
-# Admin - Gestion des clients
 @api_view(['GET', 'DELETE'])
 @csrf_exempt
 def admin_clients(request, client_id=None):
@@ -271,14 +271,12 @@ def create_rendez_vous(request):
         notes_patient = request.data.get('notes_patient', '')
         motif_id = request.data.get('motif_consultation_id')
         
-        # Validation
         if not all([professionnel_id, date_str, heure_debut_str, cabinet_id]):
             return Response(
                 {'error': 'Données manquantes (professionnel, cabinet, date, heure)'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        # Récupérer les objets
         try:
             professionnel = Professionnel.objects.get(id=professionnel_id)
         except Professionnel.DoesNotExist:
@@ -295,20 +293,16 @@ def create_rendez_vous(request):
                 status=status.HTTP_404_NOT_FOUND
             )
         
-        # Parser la date et l'heure
         date_rdv = datetime.strptime(date_str, '%Y-%m-%d').date()
         heure_debut = datetime.strptime(heure_debut_str, '%H:%M').time()
         
-        # Calculer l'heure de fin (30 minutes après)
         heure_debut_dt = datetime.combine(date_rdv, heure_debut)
         from datetime import timedelta
         heure_fin_dt = heure_debut_dt + timedelta(minutes=30)
         heure_fin = heure_fin_dt.time()
         
-        # Mode
         mode = 'presentiel' if str(mode_input).upper() == 'PRESENTIEL' else 'teleconsultation'
 
-        # Motif de consultation: utiliser l'ID fourni ou créer/récupérer un motif générique
         motif = None
         if motif_id:
             try:
@@ -325,7 +319,6 @@ def create_rendez_vous(request):
                 }
             )
 
-        # Empêcher la double réservation pour ce créneau et ce professionnel
         from django.db.models import Q
         overlap_exists = RendezVous.objects.filter(
             professionnel=professionnel,
@@ -336,7 +329,6 @@ def create_rendez_vous(request):
         if overlap_exists:
             return Response({'error': 'Créneau indisponible'}, status=status.HTTP_409_CONFLICT)
 
-        # Empêcher plusieurs rendez-vous à venir avec le même professionnel pour ce patient
         today = datetime.today().date()
         existing_future = RendezVous.objects.filter(
             patient=request.user,
@@ -346,7 +338,6 @@ def create_rendez_vous(request):
         if existing_future:
             return Response({'error': 'Vous avez déjà un rendez-vous à venir avec ce professionnel'}, status=status.HTTP_409_CONFLICT)
 
-        # Créer le rendez-vous en transaction
         with transaction.atomic():
             rendez_vous = RendezVous.objects.create(
                 patient=request.user,
@@ -394,7 +385,6 @@ def user_profile(request):
 def professionnel_rendez_vous(request):
     """Récupère tous les rendez-vous pour un professionnel de santé"""
     try:
-        # Trouver le professionnel associé à cet utilisateur
         professionnel = Professionnel.objects.get(email=request.user.email)
         rendez_vous = RendezVous.objects.filter(professionnel=professionnel).order_by('date', 'heure_debut')
         serializer = RendezVousSerializer(rendez_vous, many=True)
@@ -420,7 +410,6 @@ def professionnel_disponibilites(request, professionnel_id):
     cabinet_id = request.GET.get('cabinet_id')
     from datetime import datetime, timedelta
     if not date_str:
-        # Retourner les disponibilités brutes
         from .models import DisponibiliteHoraire
         qs = DisponibiliteHoraire.objects.filter(professionnel=professionnel)
         if cabinet_id:
@@ -429,7 +418,6 @@ def professionnel_disponibilites(request, professionnel_id):
         serializer = DisponibiliteHoraireSerializer(dispos, many=True)
         return Response(serializer.data)
 
-    # Calculer les créneaux disponibles pour la date
     try:
         date_obj = datetime.strptime(date_str, '%Y-%m-%d').date()
     except ValueError:
@@ -442,7 +430,6 @@ def professionnel_disponibilites(request, professionnel_id):
         qs = qs.filter(cabinet_id=cabinet_id)
     dispos = qs
 
-    # Récupérer les RDV existants ce jour-là (hors annulés)
     rdvs = RendezVous.objects.filter(professionnel=professionnel, date=date_obj).exclude(statut='annule')
 
     slots = []
@@ -452,7 +439,6 @@ def professionnel_disponibilites(request, professionnel_id):
         step = timedelta(minutes=dispo.duree_creneau)
         t = start_dt
         while t + step <= end_dt:
-            # Vérifier si le créneau chevauche un RDV existant
             overlap = False
             for rdv in rdvs:
                 rdv_start = datetime.combine(date_obj, rdv.heure_debut)
@@ -464,7 +450,6 @@ def professionnel_disponibilites(request, professionnel_id):
                 slots.append(t.strftime('%H:%M'))
             t = t + step
 
-    # Nettoyer et trier
     slots = sorted(list(set(slots)))
     return Response({'slots': slots})
 
@@ -553,7 +538,6 @@ def manage_professionnel_cabinets(request):
         cabinets = professionnel.cabinets.all()
         return Response(CabinetSerializer(cabinets, many=True).data)
     elif request.method == 'POST':
-        # Créer un nouveau cabinet et l'associer
         serializer = CabinetSerializer(data=request.data)
         if serializer.is_valid():
             cabinet = serializer.save()
@@ -585,7 +569,6 @@ def manage_professionnel_cabinet_detail(request, cabinet_id):
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     elif request.method == 'DELETE':
-        # Supprimer l'association; si plus aucun pro lié, supprimer le cabinet
         from .models import ProfessionnelCabinet
         ProfessionnelCabinet.objects.filter(professionnel=professionnel, cabinet=cabinet).delete()
         if cabinet.professionnels.count() == 0:
@@ -600,7 +583,6 @@ def update_rendez_vous_statut(request, rdv_id):
     try:
         rendez_vous = RendezVous.objects.get(id=rdv_id)
         
-        # Vérifier que l'utilisateur est le professionnel du rendez-vous
         professionnel = Professionnel.objects.get(email=request.user.email)
         if rendez_vous.professionnel != professionnel:
             return Response(
