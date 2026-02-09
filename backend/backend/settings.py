@@ -66,12 +66,21 @@ CORS_ALLOW_HEADERS = [
     'x-requested-with',
 ]
 
-SESSION_COOKIE_HTTPONLY = False
-SESSION_COOKIE_SAMESITE = None
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_HTTPONLY = False
-CSRF_COOKIE_SAMESITE = None
-CSRF_TRUSTED_ORIGINS = ['http://localhost', 'http://localhost:4200']
+def env_bool(name: str, default: bool = False) -> bool:
+    val = os.getenv(name)
+    if val is None:
+        return default
+    return val.strip().lower() in {"1", "true", "yes", "on"}
+
+SESSION_COOKIE_HTTPONLY = env_bool('SESSION_COOKIE_HTTPONLY', False)
+SESSION_COOKIE_SAMESITE = os.getenv('SESSION_COOKIE_SAMESITE', None)
+SESSION_COOKIE_SECURE = env_bool('SESSION_COOKIE_SECURE', False)
+CSRF_COOKIE_HTTPONLY = env_bool('CSRF_COOKIE_HTTPONLY', False)
+CSRF_COOKIE_SAMESITE = os.getenv('CSRF_COOKIE_SAMESITE', None)
+CSRF_TRUSTED_ORIGINS = os.getenv(
+    'CSRF_TRUSTED_ORIGINS',
+    'http://localhost,http://localhost:4200'
+).split(',')
 
 SESSION_COOKIE_AGE = 86400
 
@@ -95,12 +104,24 @@ TEMPLATES = [
 WSGI_APPLICATION = 'backend.wsgi.application'
 
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+if os.getenv('DATABASE_HOST'):
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.postgresql',
+            'NAME': os.getenv('DATABASE_NAME', 'postgres'),
+            'USER': os.getenv('DATABASE_USER', ''),
+            'PASSWORD': os.getenv('DATABASE_PASSWORD', ''),
+            'HOST': os.getenv('DATABASE_HOST', 'localhost'),
+            'PORT': os.getenv('DATABASE_PORT', '5432'),
+        }
     }
-}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 
 AUTH_PASSWORD_VALIDATORS = [

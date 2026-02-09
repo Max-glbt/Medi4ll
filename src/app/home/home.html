@@ -1,19 +1,68 @@
 <app-navbar></app-navbar>
 
 <div class="hero-section">
-  <h1>Bonjour {{ userDisplayName }}</h1>
-  
-  <div class="search-container">
-    <input 
-      type="text" 
-      class="search-input" 
-      placeholder="Trouver un rendez-vous (nom, spécialité, ville...)" 
-      [(ngModel)]="motsCles"
-      (keyup.enter)="rechercher()">
-    <button class="search-button" (click)="rechercher()">Rechercher</button>
+  <div class="hero-content">
+    <h1>Bonjour {{ userDisplayName }}</h1>
+    <p class="hero-subtitle">Votre santé, notre priorité. Trouvez rapidement un professionnel de santé près de chez vous.</p>
+    
+    <div class="search-container">
+      <input 
+        type="text" 
+        class="search-input" 
+        placeholder="Trouver un rendez-vous (nom, spécialité, ville...)" 
+        [(ngModel)]="motsCles"
+        (keyup.enter)="rechercher()">
+      <button class="search-button" (click)="rechercher()">
+        <span>Rechercher</span>
+        <span class="arrow">→</span>
+      </button>
+    </div>
   </div>
 </div>
 
 <div class="content-section">
-  <!-- Contenu additionnel ici -->
+  <section class="stats-section">
+    <div class="stats-grid">
+      <div class="stat-card" *ngFor="let stat of stats">
+        <div class="stat-icon">{{ stat.icon }}</div>
+        <div class="stat-value">{{ stat.value }}</div>
+        <div class="stat-label">{{ stat.label }}</div>
+      </div>
+    </div>
+  </section>
+
+  <section class="article-section">
+    <div class="section-header">
+      <h2>Articles de santé</h2>
+      <p class="section-subtitle">Conseils et informations pour prendre soin de votre santé au quotidien</p>
+    </div>
+    <div class="articles-grid">
+      <div class="article-card" *ngFor="let a of articles">
+        <div class="article-header">
+          <span class="badge">{{ a.category }}</span>
+          <h3>{{ a.title }}</h3>
+        </div>
+        <p class="article-excerpt">{{ a.excerpt }}</p>
+        <div class="article-meta">
+          <span class="meta-item">📅 {{ a.date }}</span>
+          <span class="dot">•</span>
+          <span class="meta-item">⏱️ {{ a.readTime }}</span>
+        </div>
+        <div class="article-actions">
+          <button class="read-button" disabled>
+            <span>Lire l'article</span>
+            <span class="btn-arrow">→</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="cta-section">
+    <div class="cta-content">
+      <h2>Prêt à prendre rendez-vous ?</h2>
+      <p>Accédez à notre réseau de professionnels qualifiés en quelques clics</p>
+      <button class="cta-button" (click)="rechercher()">Trouver un professionnel</button>
+    </div>
+  </section>
 </div>
